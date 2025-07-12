@@ -1,5 +1,5 @@
 import React from "react";
-import { House, Users, TrendingUp, Play, ArrowRight, Star, Eye, Heart, ClipboardList } from 'lucide-react';
+import { House, Users, TrendingUp, ArrowRight, Star, Eye, Heart, ClipboardList, Section } from 'lucide-react';
 import Header from '../components/Header.jsx'
 import Footer from "../components/Footer.jsx";
 
@@ -60,14 +60,55 @@ function Home() {
 
     return (
         <><><Header /><Footer /></>
-        <div className="SurveyHome-Container">
+            <div className="SurveyHome-Container">
                 <div className="Animation-background">
                     <div className="bg-orb-1"></div>
                     <div className="bg-orb-2"></div>
                 </div>
-        </div>
-        
-        
+            </div>
+            <section className="part1-section">
+                <div className="part1-container">
+                    <div className="part1-elements">
+                        <h1 className="part1-title">Anket Dünyasının
+                            <span className="part1-subtitle">Geleceği Burada</span>
+                        </h1>
+                        <p className="part1-description">
+                            Mystic Survey ile Anketleri Yanıtlayın, İstatistikleri Görüntüleyin ve Büyüleyici Analitik Sonuçlar Elde Edin
+                        </p>
+                        <div className="part1-button">
+                            <button className="btn-primary group">
+                                Ücretsiz Başla
+                                <ArrowRight className="arrow-icon" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <section className="popular-section">
+                <div className="popular-container">
+                    <div className="popular-section-header">
+                        <h2 className="popular-section-title">
+                            Popüler Anketler
+                        </h2>
+                        <p className="popular-section-description">
+                            Hemen Anketleri Yanıtlayın ve Anket Analizlerine Anında Erişin
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+            <section className="features-section">
+                <div className="feature-container">
+                    <div className="feature-header">
+                        <h2 className="feature-title">Neden Mystic Survey</h2>
+                        <p className="feature-description">Egzotik Anketlerle </p>
+                    </div>
+                </div>
+            </section>
+
         </>
     );
 }
