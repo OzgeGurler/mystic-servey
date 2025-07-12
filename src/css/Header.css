@@ -1,17 +1,16 @@
-/* Header.css - Fantezi Temalı Modern Tasarım */
-
 .header {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1200px;
     z-index: 1000;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0 0 20px 20px;
+    border-radius: 25px;
   }
   
   .header-container {
@@ -21,7 +20,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 70px;
+    min-height: 40px;
   }
   
   .logo {
@@ -185,10 +184,9 @@
     box-shadow: 0 6px 20px rgba(108, 99, 255, 0.6);
   }
   
-  /* CSS body margin düzeltmesi - Header için alan bırakma */
   body {
     margin: 0;
-    padding-top: 70px; /* Header yüksekliği kadar üstten boşluk */
+    padding-top: 55px;
   }
   
   /* Responsive Tasarım */
@@ -261,7 +259,6 @@
     }
   }
   
-  /* Gelişmiş Animasyonlar */
   @keyframes glow {
     0% { box-shadow: 0 0 5px rgba(108, 99, 255, 0.4); }
     50% { box-shadow: 0 0 20px rgba(108, 99, 255, 0.8); }
@@ -272,12 +269,11 @@
     animation: glow 2s ease-in-out infinite;
   }
   
-  /* Smooth scrolling için */
   html {
     scroll-behavior: smooth;
   }
   
-  /* Dark mode uyumluluğu */
+
   @media (prefers-color-scheme: dark) {
     .header {
       background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
