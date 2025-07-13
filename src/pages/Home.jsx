@@ -1,187 +1,250 @@
-import React, {useState, useEffect} from "react";
-import { House, Users, TrendingUp, ArrowRight, Star, Eye, Heart, ClipboardList, Section } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Users, TrendingUp, ArrowRight, Star, Eye, Heart, ClipboardList, Award, Clock, ChevronRight, Search, Filter } from 'lucide-react';
 import Header from '../components/Header.jsx'
 import Footer from "../components/Footer.jsx";
+import '../css//Home.css';
 
 function Home() {
+    const [searchTerm, setSearchTerm] = useState('');
+
     const features = [
         {
-            icon: <ClipboardList className="features-icon" />,
-            title: 'Birbirinden Farklı Anketler',
-            desc: 'Birbirinden ayrı anketler çözerek kendinizi keşfedin.'
+            icon: <ClipboardList className="w-8 h-8 text-blue-500" />,
+            title: 'Çeşitli Anketler',
+            desc: 'Farklı kategorilerde anketler çözerek kendinizi keşfedin.'
         },
         {
-            icon: <Users className="features-icon" />,
-            title: 'Geniş Kitleyle Çözün',
+            icon: <Users className="w-8 h-8 text-green-500" />,
+            title: 'Geniş Topluluk',
             desc: 'Binlerce kişiyle sonuçlarınızı karşılaştırın.'
         },
         {
-            icon: <TrendingUp className="features-icon" />,
+            icon: <TrendingUp className="w-8 h-8 text-purple-500" />,
             title: 'Anlık Analiz',
             desc: 'Gerçek zamanlı sonuçlar ve detaylı raporlar'
         }
-    ]
+    ];
 
     const popularSurveys = [
         {
-            title: "Müşteri Memnuniyeti Araştırması",
-            description: "Müşteri deneyimini ölçmek için kapsamlı anket şablonu",
-            views: "12.5K",
+            id: 1,
+            title: "Teknoloji Kullanım Alışkanlıkları",
+            description: "Günlük teknoloji kullanımınız hakkında detaylı bir anket",
+            category: "Teknoloji",
+            participantCount: 1243,
             rating: 4.8,
-            category: "İş",
-            color: "from-purple-500 to-pink-500"
+            duration: "5-10 dakika",
+            reward: 50,
+            trending: true
         },
         {
-            title: "Çalışan Engagement Anketi",
-            description: "Çalışan memnuniyeti ve bağlılığını ölçen profesyonel anket",
-            views: "8.2K",
-            rating: 4.9,
-            category: "İK",
-            color: "from-blue-500 to-cyan-500"
-        },
-        {
-            title: "Pazar Araştırması Şablonu",
-            description: "Yeni ürün lansmanı öncesi pazar analizi için ideal anket",
-            views: "15.3K",
-            rating: 4.7,
-            category: "Pazarlama",
-            color: "from-green-500 to-emerald-500"
-        },
-        {
-            title: "Etkinlik Değerlendirme Anketi",
-            description: "Etkinlik sonrası katılımcı feedback'i toplama anketi",
-            views: "6.8K",
+            id: 2,
+            title: "Çevre Bilinci ve Sürdürülebilirlik",
+            description: "Çevre konusundaki düşüncelerinizi paylaşın",
+            category: "Çevre",
+            participantCount: 892,
             rating: 4.6,
-            category: "Etkinlik",
-            color: "from-orange-500 to-red-500"
+            duration: "8-12 dakika",
+            reward: 75,
+            trending: false
+        },
+        {
+            id: 3,
+            title: "Uzaktan Çalışma Deneyimleri",
+            description: "İş hayatında uzaktan çalışma deneyimleriniz",
+            category: "İş Hayatı",
+            participantCount: 2156,
+            rating: 4.9,
+            duration: "10-15 dakika",
+            reward: 100,
+            trending: true
+        },
+        {
+            id: 4,
+            title: "Sağlıklı Yaşam Tarzı",
+            description: "Beslenme ve egzersiz alışkanlıklarınız hakkında",
+            category: "Sağlık",
+            participantCount: 567,
+            rating: 4.5,
+            duration: "6-8 dakika",
+            reward: 60,
+            trending: false
         }
     ];
 
-    useEffect(() => {
-        let lastScrollTop = 0;
-        const scrollThreshold = 50; //burayı kafana göre değiştirebilirsin özge
-
-        function handleHeaderScroll() {
-            const header = document.querySelector('.header');
-            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Debug için console log
-            console.log('Scroll position:', currentScrollTop);
-            console.log('Header element:', header);
-            
-            if (currentScrollTop > lastScrollTop && currentScrollTop > scrollThreshold) {
-                header?.classList.add('header-hidden');
-                console.log('Header hidden class added');
-            } else if (currentScrollTop < lastScrollTop) {
-                header?.classList.remove('header-hidden');
-                console.log('Header hidden class removed');
-            }
-            
-            if (currentScrollTop <= 0) {
-                header?.classList.remove('header-hidden');
-            }
-            
-            lastScrollTop = currentScrollTop;
-        }
-
-        function initFooterObserver() {
-            const footer = document.querySelector('.Footer-bg');
-            
-            if (!footer) return;
-            
-            const footerObserver = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('footer-visible');
-                        }
-                    });
-                },
-                {
-                    threshold: 0.1,
-                    rootMargin: '0px 0px -50px 0px'
-                }
-            );
-            
-            footerObserver.observe(footer);
-        }
-
-        function throttle(func, limit) {
-            let inThrottle;
-            return function() {
-                const args = arguments;
-                const context = this;
-                if (!inThrottle) {
-                    func.apply(context, args);
-                    inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
-                }
-            }
-        }
-
-        const throttledScrollHandler = throttle(handleHeaderScroll, 10);
-        
-        window.addEventListener('scroll', throttledScrollHandler, { passive: true });
-        
-        setTimeout(initFooterObserver, 100);
-
-        return () => {
-            window.removeEventListener('scroll', throttledScrollHandler);
-        };
-    }, []);
-
+    const stats = [
+        { label: 'Toplam Anket', value: '1,245', icon: <ClipboardList className="w-6 h-6" /> },
+        { label: 'Aktif Kullanıcı', value: '12,543', icon: <Users className="w-6 h-6" /> },
+        { label: 'Tamamlanan Anket', value: '45,678', icon: <Award className="w-6 h-6" /> }
+    ];
 
     return (
-        <><>
-        <Header /></>
-            <div className="SurveyHome-Container">
-                <div className="Animation-background">
-                    <div className="bg-orb-1"></div>
-                    <div className="bg-orb-2"></div>
+        <>
+            <Header />
+            
+            <div className="hero-container">
+                <div className="hero-content">
+                    <div className="hero-text">
+                        <h1 className="hero-title">
+                            Anket Dünyasının
+                            <span className="hero-title-gradient">
+                                Geleceği Burada
+                            </span>
+                        </h1>
+                        <p className="hero-subtitle">
+                            Mystic Survey ile anketleri yanıtlayın, istatistikleri görüntüleyin ve özel sonuçlar elde edin.
+                        </p>
+                        
+                        <div className="search-container">
+                            <div className="search-input-wrapper">
+                                <Search className="search-icon" />
+                                <input
+                                    type="text"
+                                    placeholder="Anket ara..."
+                                    className="search-input"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <button className="primary-button">
+                            Ücretsiz Başla
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <section className="part1-section">
-                <div className="part1-container">
-                    <div className="part1-elements">
-                        <h1 className="part1-title">Anket Dünyasının
-                            <span className="part1-subtitle">Geleceği Burada</span>
-                        </h1>
-                        <p className="part1-description">
-                            Mystic Survey ile Anketleri Yanıtlayın, İstatistikleri Görüntüleyin ve Büyüleyici Analitik Sonuçlar Elde Edin
-                        </p>
-                        <div className="part1-button">
-                            <button className="btn-primary group">
-                                Ücretsiz Başla
-                                <ArrowRight className="arrow-icon" />
-                            </button>
-                        </div>
+            <div className="stats-section">
+                <div className="stats-container">
+                    <div className="stats-grid">
+                        {stats.map((stat, index) => (
+                            <div key={index} className="stat-card">
+                                <div className="stat-icon">
+                                    {stat.icon}
+                                </div>
+                                <div className="stat-value">{stat.value}</div>
+                                <div className="stat-label">{stat.label}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <section className="popular-section">
-                <div className="popular-container">
-                    <div className="popular-section-header">
-                        <h2 className="popular-section-title">
+            <div className="surveys-section">
+                <div className="surveys-container">
+                    <div className="surveys-header">
+                        <h2 className="surveys-title">
                             Popüler Anketler
                         </h2>
-                        <p className="popular-section-description">
-                            Hemen Anketleri Yanıtlayın ve Analizlere Anında Erişin
+                        <p className="surveys-subtitle">
+                            Hemen anketleri yanıtlayın ve sizin verdiğiniz cevaplara göre bir sonuç alın.
                         </p>
                     </div>
 
-                </div>
-            </section>
+                    <div className="surveys-grid">
+                        {popularSurveys.map((survey) => (
+                            <div
+                                key={survey.id}
+                                className="survey-card"
+                            >
+                                {survey.trending && (
+                                    <div className="trending-badge">
+                                        🔥 Trend
+                                    </div>
+                                )}
 
-            <section className="features-section">
-                <div className="feature-container">
-                    <div className="feature-header">
-                        <h2 className="feature-title">Neden Mystic Survey</h2>
-                        <p className="feature-description">Egzotik Anketlerle... </p>
+                                <div className="survey-category">
+                                    {survey.category}
+                                </div>
+
+                                <h3 className="survey-title">
+                                    {survey.title}
+                                </h3>
+
+                                <p className="survey-description">
+                                    {survey.description}
+                                </p>
+
+                                <div className="survey-stats">
+                                    <div className="survey-stat">
+                                        <Users className="w-4 h-4" />
+                                        <span>{survey.participantCount.toLocaleString()}</span>
+                                    </div>
+                                    <div className="survey-stat">
+                                        <Clock className="w-4 h-4" />
+                                        <span>{survey.duration}</span>
+                                    </div>
+                                </div>
+
+                                <div className="survey-footer">
+                                    <div className="survey-rating">
+                                        <Star className="rating-star" />
+                                        <span className="rating-text">{survey.rating}</span>
+                                    </div>
+                                    <div className="survey-reward">
+                                        <Award className="w-4 h-4" />
+                                        <span className="reward-text">{survey.reward} Puan</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="view-all-container">
+                        <button className="view-all-button">
+                            Tüm Anketleri Gör
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
                     </div>
                 </div>
-            </section>
+            </div>
+
+            <div className="features-section">
+                <div className="features-container">
+                    <div className="features-header">
+                        <h2 className="features-title">
+                            Neden Mystic Survey?
+                        </h2>
+                        <p className="features-subtitle">
+                            Profesyonel anket deneyimi için ihtiyacınız olan her şey
+                        </p>
+                    </div>
+
+                    <div className="features-grid">
+                        {features.map((feature, index) => (
+                            <div key={index} className="feature-card">
+                                <div className="feature-icon">
+                                    {feature.icon}
+                                </div>
+                                <h3 className="feature-title">
+                                    {feature.title}
+                                </h3>
+                                <p className="feature-description">
+                                    {feature.desc}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="cta-section">
+                <div className="cta-container">
+                    <h2 className="cta-title">
+                        Anket Dünyasına Katılın
+                    </h2>
+                    <p className="cta-subtitle">
+                        Hemen ücretsiz hesap oluşturun ve anketleri yanıtlamaya başlayın
+                    </p>
+                    <button className="cta-button">
+                        Hemen Başla
+                        <ArrowRight className="w-5 h-5" />
+                    </button>
+                </div>
+            </div>
+
             <Footer />
         </>
     );
