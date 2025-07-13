@@ -66,6 +66,7 @@ function Home() {
                     <div className="bg-orb-2"></div>
                 </div>
             </div>
+
             <section className="part1-section">
                 <div className="part1-container">
                     <div className="part1-elements">
@@ -85,7 +86,6 @@ function Home() {
                 </div>
             </section>
 
-
             <section className="popular-section">
                 <div className="popular-container">
                     <div className="popular-section-header">
@@ -93,7 +93,7 @@ function Home() {
                             Popüler Anketler
                         </h2>
                         <p className="popular-section-description">
-                            Hemen Anketleri Yanıtlayın ve Anket Analizlerine Anında Erişin
+                            Hemen Anketleri Yanıtlayın ve Analizlere Anında Erişin
                         </p>
                     </div>
 
@@ -104,7 +104,7 @@ function Home() {
                 <div className="feature-container">
                     <div className="feature-header">
                         <h2 className="feature-title">Neden Mystic Survey</h2>
-                        <p className="feature-description">Egzotik Anketlerle </p>
+                        <p className="feature-description">Egzotik Anketlerle... </p>
                     </div>
                 </div>
             </section>
