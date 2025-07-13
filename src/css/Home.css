@@ -1,0 +1,40 @@
+/* Ana sayfa düzeni için CSS */
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    padding-top: 0; /* Header yüksekliği kadar boşluk bırakın */
+}
+
+/* Header'ı sayfanın en üstüne sabitle */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: white; /* Arka plan rengi */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Gölge efekti */
+}
+
+/* Footer'ı sayfanın en altına sabitle */
+Footer {
+    margin-top: auto;
+    background-color: #f8f9fa; /* Footer arka plan rengi */
+}
+
+/* Eğer header sabit ise, main content'e padding-top ekleyin */
+.main-content {
+    padding-top: 80px; /* Header yüksekliğine göre ayarlayın */
+}
+
+/* Responsive tasarım için */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 60px; /* Mobil için daha az padding */
+    }
+}
