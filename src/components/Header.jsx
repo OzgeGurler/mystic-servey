@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { ClipboardList } from 'lucide-react';
 import { Link } from "react-router-dom"
+import RegisterPopUp from '../components/RegisterPopUp.jsx';
 import '../css/Header.css'
 
 function Header () {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    
+    
     useEffect(() => {
         let lastScrollTop = 0;
         const scrollThreshold = 50; //burayı kafana göre değiştirebilirsin özge
@@ -77,14 +82,14 @@ function Header () {
     }, []);
 
     return (
-            <header className='header'>
-                <div className="header-container">
-                    <div className="logo">
-                        <div className="logo-icon">
+            <><header className='header'>
+            <div className="header-container">
+                <div className="logo">
+                    <div className="logo-icon">
                         <ClipboardList />
-                        </div>
-                    <h1 className="logo-text">Mystic Survey</h1>
                     </div>
+                    <h1 className="logo-text">Mystic Survey</h1>
+                </div>
                 <nav className="nav">
                     <a href="/">Ana Sayfa</a>
                     <a href="/Anketler">Anketler</a>
@@ -92,10 +97,17 @@ function Header () {
 
                 <div className="header-buttons">
                     <button className="btn-login">Giriş Yap</button>
-                    <button className="btn-reg">Kayıt Ol</button>
+                    <button onClick={() => setIsModalOpen(true)} className="btn-reg">Kayıt Ol</button>
                 </div>
-                </div>
-            </header>
+            </div>
+        </header>
+        
+                <RegisterPopUp
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)} 
+                />
+                
+                </>
     )
 
 }

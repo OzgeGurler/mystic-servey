@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { Users, TrendingUp, ArrowRight, Star, Eye, Heart, ClipboardList, Award, Clock, ChevronRight, Search, Filter } from 'lucide-react';
-import RegisterPage from './RegisterPage.jsx'
-import Header from '../components/Header.jsx'
+import RegisterPage from './RegisterPage.jsx';
+import Header from '../components/Header.jsx';
 import Footer from "../components/Footer.jsx";
+import RegisterPopUp from '../components/RegisterPopUp.jsx';
 import '../css//Home.css';
 
 function Home() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    
     const [searchTerm, setSearchTerm] = useState('');
 
     const features = [
@@ -110,12 +114,10 @@ function Home() {
                             </div>
                         </div>
 
-                        <Link to="/RegisterPage">
-                        <button className="primary-button">
+                        <button onClick={() => setIsModalOpen(true)} className="primary-button">
                             Ücretsiz Başla
                             <ArrowRight className="w-5 h-5" />
                         </button>
-                        </Link>
                     </div>
                 </div>
             </div>
@@ -197,10 +199,12 @@ function Home() {
                     </div>
 
                     <div className="view-all-container">
+                        <a href="/Anketler">
                         <button className="view-all-button">
                             Tüm Anketleri Gör
                             <ChevronRight className="w-5 h-5" />
                         </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -242,7 +246,7 @@ function Home() {
                     <p className="cta-subtitle">
                         Hemen ücretsiz hesap oluşturun ve anketleri yanıtlamaya başlayın
                     </p>
-                    <button className="cta-button">
+                    <button onClick={() => setIsModalOpen(true)} className="cta-button">
                         Hemen Başla
                         <ArrowRight className="w-5 h-5" />
                     </button>
@@ -250,6 +254,11 @@ function Home() {
             </div>
 
             <Footer />
+
+            <RegisterPopUp 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)} 
+            />
         </>
     );
 }
