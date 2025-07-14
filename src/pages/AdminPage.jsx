@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../css/AdminPage.css";
 import { Users, FileText, BarChart2, Settings, LogOut } from "lucide-react";
 import UsersTab from "./UsersTab";
+import SurveysTab from "./SurveysTab";
 
 /*
 const UsersTab = () => (
@@ -12,12 +13,14 @@ const UsersTab = () => (
 );
 */
 
+/* 
 const SurveysTab = () => (
     <div className="tab-content">
         <h2>Anket Yönetimi</h2>
         <p>Anket yönet</p>
     </div>
 );
+ */
 
 const StatsTab = () => (
     <div className="tab-content">
