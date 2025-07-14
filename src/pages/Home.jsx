@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 import { Users, TrendingUp, ArrowRight, Star, Eye, Heart, ClipboardList, Award, Clock, ChevronRight, Search, Filter } from 'lucide-react';
+import RegisterPage from './RegisterPage.jsx'
 import Header from '../components/Header.jsx'
 import Footer from "../components/Footer.jsx";
 import '../css//Home.css';
@@ -108,10 +110,12 @@ function Home() {
                             </div>
                         </div>
 
+                        <Link to="/RegisterPage">
                         <button className="primary-button">
                             Ücretsiz Başla
                             <ArrowRight className="w-5 h-5" />
                         </button>
+                        </Link>
                     </div>
                 </div>
             </div>
