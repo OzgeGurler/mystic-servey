@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, UserCheck, UserX, Mail, Phone, Calendar, Save, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, UserCheck, UserX, Mail, Phone, Calendar, Save, X, Lock, Eye, EyeOff } from 'lucide-react';
 import UserService from '../services/userService';
 import '../css/UsersTab.css';
 
@@ -11,6 +11,8 @@ const UsersTab = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0 });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -18,6 +20,8 @@ const UsersTab = () => {
         email: '',
         phone: '',
         role: 'user',
+        password: '',
+        confirmPassword: ''
     });
 
     // Sayfa yüklendiğinde kullanıcıları getir
@@ -56,16 +60,46 @@ const UsersTab = () => {
         }));
     };
 
+    const validatePassword = (password) => {
+        if (password.length < 8) {
+            return 'Şifre en az 8 karakter olmalıdır';
+        }
+        if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+            return 'Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir';
+        }
+        return null;
+    };
+
     const handleAddUser = async (e) => {
         e.preventDefault();
         try {
-            if (!formData.name || !formData.email) {
-                alert('Ad ve email alanları zorunludur!');
+            if (!formData.name || !formData.email || !formData.password) {
+                alert('Ad, email ve şifre alanları zorunludur!');
                 return;
             }
-            await UserService.addUser(formData);
+
+            const passwordError = validatePassword(formData.password);
+            if (passwordError) {
+                alert(passwordError);
+                return;
+            }
+
+            if (formData.password !== formData.confirmPassword) {
+                alert('Şifreler eşleşmiyor!');
+                return;
+            }
+
+            const userData = {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                role: formData.role,
+                password: formData.password
+            };
+
+            await UserService.addUser(userData);
             setShowAddModal(false);
-            setFormData({ name: '', email: '', phone: '', role: 'user' });
+            setFormData({ name: '', email: '', phone: '', role: 'user', password: '', confirmPassword: '' });
             fetchUsers();
             fetchStats();
             alert('Kullanıcı başarıyla eklendi!');
@@ -80,10 +114,39 @@ const UsersTab = () => {
         try {
             if (!selectedUser) return;
 
-            await UserService.updateUser(selectedUser.id, formData);
+            if (!formData.name || !formData.email) {
+                alert('Ad ve email alanları zorunludur!');
+                return;
+            }
+
+            if (formData.password) {
+                const passwordError = validatePassword(formData.password);
+                if (passwordError) {
+                    alert(passwordError);
+                    return;
+                }
+
+                if (formData.password !== formData.confirmPassword) {
+                    alert('Şifreler eşleşmiyor!');
+                    return;
+                }
+            }
+
+            const userData = {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                role: formData.role
+            };
+
+            if (formData.password) {
+                userData.password = formData.password;
+            }
+
+            await UserService.updateUser(selectedUser.id, userData);
             setShowEditModal(false);
             setSelectedUser(null);
-            setFormData({ name: '', email: '', phone: '', role: 'user' });
+            setFormData({ name: '', email: '', phone: '', role: 'user', password: '', confirmPassword: '' });
             fetchUsers();
             fetchStats();
             alert('Kullanıcı başarıyla güncellendi!');
@@ -125,8 +188,19 @@ const UsersTab = () => {
             email: user.email || '',
             phone: user.phone || '',
             role: user.role || 'user',
+            password: user.password || '',
+            confirmPassword: user.password || ''
         });
         setShowEditModal(true);
+    };
+
+    const closeModals = () => {
+        setShowAddModal(false);
+        setShowEditModal(false);
+        setSelectedUser(null);
+        setFormData({ name: '', email: '', phone: '', role: 'user', password: '', confirmPassword: '' });
+        setShowPassword(false);
+        setShowConfirmPassword(false);
     };
 
     const filteredUsers = users.filter(user =>
@@ -258,7 +332,6 @@ const UsersTab = () => {
                     )}
                 </div>
 
-
                 {/* Kullanıcı Ekle Modal */}
                 {showAddModal && (
                     <div className="modal-overlay">
@@ -267,7 +340,7 @@ const UsersTab = () => {
                                 <h3>Yeni Kullanıcı Ekle</h3>
                                 <button
                                     className="close-btn"
-                                    onClick={() => setShowAddModal(false)}
+                                    onClick={closeModals}
                                 >
                                     <X className="icon" />
                                 </button>
@@ -313,8 +386,50 @@ const UsersTab = () => {
                                         <option value="admin">Admin</option>
                                     </select>
                                 </div>
+                                <div className="form-group">
+                                    <label>Şifre *</label>
+                                    <div className="password-input-container">
+                                        <Lock className="password-icon" />
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            required
+                                            placeholder="En az 8 karakter, büyük/küçük harf ve rakam"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="toggle-password"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="icon" /> : <Eye className="icon" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label>Şifre Tekrar *</label>
+                                    <div className="password-input-container">
+                                        <Lock className="password-icon" />
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            name="confirmPassword"
+                                            value={formData.confirmPassword}
+                                            onChange={handleInputChange}
+                                            required
+                                            placeholder="Şifrenizi tekrar girin"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="toggle-password"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="icon" /> : <Eye className="icon" />}
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="modal-actions">
-                                    <button type="button" onClick={() => setShowAddModal(false)}>
+                                    <button type="button" onClick={closeModals}>
                                         İptal
                                     </button>
                                     <button type="submit" className="save-btn">
@@ -335,7 +450,7 @@ const UsersTab = () => {
                                 <h3>Kullanıcı Düzenle</h3>
                                 <button
                                     className="close-btn"
-                                    onClick={() => setShowEditModal(false)}
+                                    onClick={closeModals}
                                 >
                                     <X className="icon" />
                                 </button>
@@ -381,8 +496,48 @@ const UsersTab = () => {
                                         <option value="admin">Admin</option>
                                     </select>
                                 </div>
+                                <div className="form-group">
+                                    <label>Yeni Şifre (Değiştirmek istemiyorsanız boş bırakın)</label>
+                                    <div className="password-input-container">
+                                        <Lock className="password-icon" />
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            placeholder="Yeni şifre (opsiyonel)"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="toggle-password"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="icon" /> : <Eye className="icon" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label>Şifre Tekrar</label>
+                                    <div className="password-input-container">
+                                        <Lock className="password-icon" />
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            name="confirmPassword"
+                                            value={formData.confirmPassword}
+                                            onChange={handleInputChange}
+                                            placeholder="Yeni şifre tekrar"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="toggle-password"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="icon" /> : <Eye className="icon" />}
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="modal-actions">
-                                    <button type="button" onClick={() => setShowEditModal(false)}>
+                                    <button type="button" onClick={closeModals}>
                                         İptal
                                     </button>
                                     <button type="submit" className="save-btn">
@@ -400,4 +555,3 @@ const UsersTab = () => {
 };
 
 export default UsersTab;
-

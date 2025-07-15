@@ -185,6 +185,44 @@
 
 }
 
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-icon {
+  position: absolute;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  color: #666;
+  z-index: 1;
+}
+
+.password-input-container input {
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.toggle-password .icon {
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
 .actions {
   flex-wrap: nowrap;
 }

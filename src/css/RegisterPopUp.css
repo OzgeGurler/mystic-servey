@@ -1,106 +1,116 @@
-/* Pop-up Container */
+/* RegisterPopUp.css */
+
+/* Ana popup container */
 .popup-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
-  overflow: hidden;
+  backdrop-filter: blur(5px);
 }
 
-/* Pop-up Content */
+/* Popup içeriği */
 .popup-content {
-  background: linear-gradient(135deg, #4c63d2 0%, #5a67d8 50%, #667eea 100%);
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(76, 99, 210, 0.4);
-  width: 480px;
-  min-height: 580px;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, #2D2B5A 0%, #1A1A2E 100%);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: popupSlideIn 0.3s ease-out;
 }
 
-/* Pop-up Header */
+@keyframes popupSlideIn {
+  from {
+      opacity: 0;
+      transform: translateY(-50px) scale(0.9);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+  }
+}
+
+/* Popup header */
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32px 32px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .popup-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: white;
+  color: #FFFFFF;
+  font-size: 24px;
+  font-weight: 600;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .popup-header button {
-  background: rgba(255, 255, 255, 0.15);
+  background: none;
   border: none;
+  color: #9CA3AF;
   cursor: pointer;
-  padding: 12px;
-  border-radius: 12px;
-  color: white;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .popup-header button:hover {
-  background-color: rgba(255, 255, 255, 0.25);
-  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
 }
 
-/* Pop-up Body */
+/* Popup body */
 .popup-body {
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
+  padding: 24px 28px 28px;
 }
 
 .popup-subtitle {
-  margin-bottom: 32px;
-  text-align: center;
+  margin-bottom: 24px;
 }
 
 .popup-subtitle p {
-  color: rgba(255, 255, 255, 0.85);
+  color: #9CA3AF;
   font-size: 16px;
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-/* Form Container */
+/* Form container */
 .form-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* Form Group */
+/* Form group */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-label {
+  color: #E5E7EB;
   font-size: 14px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 6px;
-  margin-left: 4px;
+  margin-bottom: 4px;
 }
 
-/* Input Container */
+/* Input container */
 .input-container {
   position: relative;
   display: flex;
@@ -109,168 +119,223 @@
 
 .input-icon {
   position: absolute;
-  left: 14px;
-  width: 18px;
-  height: 18px;
-  color: rgba(255, 255, 255, 0.6);
+  left: -1px;
+  width: 20px;
+  height: 19px;
+  color: #6B7280;
   z-index: 1;
+  transition: opacity 0.2s ease;
 }
 
 .form-input {
   width: 100%;
-  padding: 14px 14px 14px 44px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 16px 14px 50px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  font-size: 15px;
-  transition: all 0.3s ease;
-  outline: none;
-  background-color: rgba(255, 255, 255, 0.08);
-  color: white;
+  color: #FFFFFF;
+  font-size: 16px;
+  transition: all 0.2s ease;
   box-sizing: border-box;
-  backdrop-filter: blur(10px);
 }
 
 .form-input:focus {
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.12);
+  outline: none;
+  border-color: #7C3AED;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
-.form-input.error {
-  border-color: #ff8a8a;
-  box-shadow: 0 0 0 3px rgba(255, 138, 138, 0.2);
+.form-input:focus + .input-icon,
+.form-input:not(:placeholder-shown) + .input-icon {
+  opacity: 0;
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: #6B7280;
+  font-size: 14px;
+  
 }
 
-/* Password Toggle */
+.form-input.error {
+  border-color: #EF4444;
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.form-input.error:focus {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Password toggle button */
 .password-toggle {
   position: absolute;
-  right: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #6B7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-icon {
+  position: absolute;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  color: #666;
+  z-index: 1;
+}
+
+.password-input-container input {
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 6px;
-  color: rgba(255, 255, 255, 0.6);
-  transition: all 0.3s ease;
+  padding: 0;
+  display: flex;
+  align-items: center;
   z-index: 1;
-  border-radius: 6px;
 }
+
+.toggle-password .icon {
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
 
 .password-toggle:hover {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.1);
+  color: #9CA3AF;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Error Message */
+/* Error message */
 .error-message {
-  color: #ff8a8a;
+  color: #EF4444;
   font-size: 13px;
-  margin: 4px 0 0 4px;
-  line-height: 1.4;
+  margin: 0;
+  padding-left: 4px;
 }
 
-/* Submit Button */
+/* Submit button */
 .submit-button {
-  width: 100%;
-  background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
-  color: white;
+  background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+  color: #FFFFFF;
   border: none;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 16px 24px;
   font-size: 16px;
   font-weight: 600;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 16px;
-  box-shadow: 0 4px 12px rgba(90, 103, 216, 0.3);
-  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 }
 
 .submit-button:hover {
+  background: linear-gradient(135deg, #6D28D9 0%, #4C1D95 100%);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(90, 103, 216, 0.4);
-  background: linear-gradient(135deg, #4c63d2 0%, #5a67d8 100%);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
 }
 
 .submit-button:active {
   transform: translateY(0);
 }
 
-/* Pop-up Footer */
+/* Popup footer */
 .popup-footer {
-  padding: 24px 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
   margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
 }
 
 .footer-text {
-  text-align: center;
-  color: rgba(255, 255, 255, 0.8);
+  color: #9CA3AF;
   font-size: 14px;
   margin: 0;
-  line-height: 1.6;
 }
 
 .footer-link {
-  color: rgba(255, 255, 255, 0.95);
   background: none;
   border: none;
+  color: #7C3AED;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
-  text-decoration: underline;
-  transition: all 0.3s ease;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .footer-link:hover {
-  color: white;
-  transform: scale(1.02);
+  color: #6D28D9;
+  text-decoration: underline;
 }
 
-/* Responsive Design */
-@media (max-width: 520px) {
+/* Responsive design */
+@media (max-width: 640px) {
   .popup-content {
-    width: 90%;
-    min-height: 520px;
-    margin: 20px;
+      width: 95%;
+      margin: 20px;
+      border-radius: 16px;
   }
   
   .popup-header {
-    padding: 28px 28px 20px;
+      padding: 20px 24px 16px;
   }
   
   .popup-body {
-    padding: 28px;
+      padding: 20px 24px 24px;
   }
   
   .popup-title {
-    font-size: 28px;
-  }
-  
-  .form-container {
-    gap: 18px;
+      font-size: 22px;
   }
   
   .form-input {
-    padding: 12px 12px 12px 40px;
-    font-size: 14px;
-  }
-  
-  .input-icon {
-    left: 12px;
-    width: 16px;
-    height: 16px;
-  }
-  
-  .password-toggle {
-    right: 12px;
+      padding: 12px 16px 12px 48px;
+      font-size: 15px;
   }
   
   .submit-button {
-    padding: 14px;
-    font-size: 15px;
+      padding: 14px 20px;
+      font-size: 15px;
   }
+}
+
+/* Scrollbar styling */
+.popup-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }

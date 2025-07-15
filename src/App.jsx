@@ -8,7 +8,6 @@ import Header from './components/Header.jsx'
 import AnketPage from './pages/Anketler.jsx'
 import Footer from './components/Footer.jsx'
 import AdminPage from './pages/AdminPage.jsx'
-import RegisterPage from './pages/RegisterPage.jsx'
 
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
         <Route path="/test1" element={<Footer />} />
         <Route path="/Anketler" element={<AnketPage />} />
         <Route path="/admin" element={<AdminPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
 
 
