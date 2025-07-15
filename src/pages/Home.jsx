@@ -14,7 +14,6 @@ function Home() {
     const [surveys, setSurveys] = useState([]);
 
     
-    // popüler anket yaptığın zaman bu kodu değiştir. Tüm anketleri çekiyor bu kod //
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(db, "surveys"), (querySnapshot) => {
             const surveysData = [];

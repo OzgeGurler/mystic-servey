@@ -153,8 +153,14 @@ function LoginPopUp({ isOpen, onClose, onRegisterClick, onLoginSuccess }) {
     if (!isOpen) return null;
 
     return (
-        <div className='login-popup-container'>
-            <div className='login-popup-content'>
+        <div 
+            className='login-popup-container' 
+            onClick={handleClose} // Dışarı tıklanınca kapanır
+        >
+            <div 
+                className='login-popup-content' 
+                onClick={(e) => e.stopPropagation()} // İçeriğe tıklamada kapanmasın
+            >
                 <div className='login-popup-header'>
                     <h2 className='login-popup-title'>Giriş Yap</h2>
                     <button onClick={handleClose} disabled={loading}>
@@ -231,7 +237,6 @@ function LoginPopUp({ isOpen, onClose, onRegisterClick, onLoginSuccess }) {
                             </div>
                             {errors.password && <p className="login-error-message">{errors.password}</p>}
                         </div>
-
 
                         <div className="login-form-options">
                             <div className="login-remember-me">
