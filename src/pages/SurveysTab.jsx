@@ -13,6 +13,9 @@ import "../css/SurveysTab.css";
 
 export default function SurveysTab() {
     const [surveys, setSurveys] = useState([]);
+    const [filteredSurveys, setFilteredSurveys] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("Tümü");
     const [showModal, setShowModal] = useState(false);
     const [modalStep, setModalStep] = useState(1);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -20,14 +23,26 @@ export default function SurveysTab() {
 
     const [newSurvey, setNewSurvey] = useState({
         title: "",
+        category: "",
         questionCount: 1,
         questions: []
     });
 
-    // Firebase'den anketleri getir
     useEffect(() => {
         fetchSurveys();
+        fetchCategories();
     }, []);
+
+    useEffect(() => {
+        if (selectedCategory === "Tümü") {
+            setFilteredSurveys(surveys);
+        } else {
+            const filtered = surveys.filter(
+                (survey) => survey.category === selectedCategory
+            );
+            setFilteredSurveys(filtered);
+        }
+    }, [selectedCategory, surveys]);
 
     const fetchSurveys = async () => {
         try {
@@ -39,6 +54,30 @@ export default function SurveysTab() {
             setSurveys(surveysData);
         } catch (error) {
             console.error("Anketler getirilemedi:", error);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "categories"));
+            const categoriesData = [];
+            querySnapshot.forEach((doc) => {
+                categoriesData.push(doc.data().name);
+            });
+            setCategories(categoriesData);
+        } catch (error) {
+            console.error("Kategoriler alınamadı:", error);
+        }
+    };
+
+    const addCategoryIfNotExists = async (categoryName) => {
+        if (!categories.includes(categoryName)) {
+            try {
+                await addDoc(collection(db, "categories"), { name: categoryName });
+                setCategories((prev) => [...prev, categoryName]); // State'i güncelle
+            } catch (error) {
+                console.error("Kategori eklenemedi:", error);
+            }
         }
     };
 
@@ -72,6 +111,7 @@ export default function SurveysTab() {
     const resetModal = () => {
         setNewSurvey({
             title: "",
+            category: "",
             questionCount: 1,
             questions: []
         });
@@ -81,7 +121,6 @@ export default function SurveysTab() {
         setShowModal(false);
     };
 
-    // Soruları hazırla
     const prepareQuestions = (count) => {
         const questions = [];
         for (let i = 0; i < count; i++) {
@@ -95,49 +134,107 @@ export default function SurveysTab() {
     };
 
     const handleStep1Next = () => {
-        // Anket başlığı veya soru sayısı geçersizse uyarı ver ve çık
-        if (newSurvey.title.trim() === "" || newSurvey.questionCount < 1) {
-            alert("Lütfen anket başlığı ve soru sayısını girin!");
+        console.log("DEBUG", newSurvey);
+        if (!newSurvey.category || newSurvey.category.trim() === "") {
+            alert("Lütfen bir kategori girin!");
             return;
         }
 
-        let questionsToSet = []; // Güncellenecek soru dizisi
+        if (
+            newSurvey.title.trim() === "" ||
+            newSurvey.category.trim() === "" ||
+            newSurvey.questionCount < 1
+        ) {
+            alert("Lütfen başlık, kategori ve soru sayısını doldurun!");
+            return;
+        }
+        let questionsToSet = [];
 
         if (isEditMode) {
-            // Düzenleme modundaysak, mevcut sorularla başla
             questionsToSet = [...newSurvey.questions];
-
-            // Yeni soru sayısına göre soruları ayarla
             if (newSurvey.questionCount > questionsToSet.length) {
-                // Soru sayısı artırıldıysa, yeni boş sorular ekle
                 for (let i = questionsToSet.length; i < newSurvey.questionCount; i++) {
                     questionsToSet.push({
-                        id: i + 1, // Yeni sorulara benzersiz ID'ler ver
+                        id: i + 1,
                         question: "",
                         options: ["", ""]
                     });
                 }
             } else if (newSurvey.questionCount < questionsToSet.length) {
-                // Soru sayısı azaltıldıysa, fazla soruları kaldır
                 questionsToSet = questionsToSet.slice(0, newSurvey.questionCount);
             }
-            // newSurvey.questionCount, questionsToSet.length'e eşitse, dizinin uzunluğunda bir değişiklik gerekmez.
         } else {
-            // Yeni anketler için (veya düzenleme modunda değilsek), sıfırdan sorular oluştur
             questionsToSet = prepareQuestions(newSurvey.questionCount);
         }
 
-        // State'i hazırlanmış veya ayarlanmış sorularla güncelle
         setNewSurvey(prev => ({
             ...prev,
             questions: questionsToSet
         }));
-
-        // Bir sonraki adıma geç
         setModalStep(2);
     };
 
+    const saveSurvey = async () => {
+        if (newSurvey.questions.some((q) => q.question.trim() === "")) {
+            alert("Lütfen tüm soruları doldurun!");
+            return;
+        }
+        if (newSurvey.questions.some((q) => q.options.some((opt) => opt.trim() === ""))) {
+            alert("Lütfen tüm seçenekleri doldurun!");
+            return;
+        }
 
+        try {
+            // Eğer kategori yeni ise önce ekle
+            await addCategoryIfNotExists(newSurvey.category);
+
+            if (isEditMode) {
+                await updateDoc(doc(db, "surveys", editSurveyId), {
+                    title: newSurvey.title,
+                    category: newSurvey.category,
+                    questionCount: newSurvey.questionCount,
+                    questions: newSurvey.questions
+                });
+                setSurveys((prev) =>
+                    prev.map((s) =>
+                        s.id === editSurveyId
+                            ? {
+                                ...s,
+                                title: newSurvey.title,
+                                category: newSurvey.category,
+                                questionCount: newSurvey.questionCount,
+                                questions: newSurvey.questions
+                            }
+                            : s
+                    )
+                );
+                alert("Anket başarıyla güncellendi!");
+            } else {
+                const surveyData = {
+                    title: newSurvey.title,
+                    category: newSurvey.category || "Kategori Yok",
+                    questionCount: newSurvey.questionCount,
+                    questions: newSurvey.questions,
+                    active: true,
+                    createdAt: new Date().toISOString()
+                };
+
+                const docRef = await addDoc(collection(db, "surveys"), surveyData);
+                setSurveys((prev) => [
+                    ...prev,
+                    { id: docRef.id, ...surveyData }
+                ]);
+                alert("Anket başarıyla oluşturuldu!");
+            }
+
+            resetModal();
+        } catch (error) {
+            console.error("Anket kaydedilemedi:", error);
+            alert("Anket kaydedilirken bir hata oluştu!");
+        }
+    };
+
+    // ✅ Eksik Fonksiyonlar
     const updateQuestion = (questionIndex, field, value) => {
         const updatedQuestions = [...newSurvey.questions];
         updatedQuestions[questionIndex][field] = value;
@@ -164,72 +261,6 @@ export default function SurveysTab() {
         }
     };
 
-    const saveSurvey = async () => {
-        // Validation
-        if (newSurvey.questions.some((q) => q.question.trim() === "")) {
-            alert("Lütfen tüm soruları doldurun!");
-            return;
-        }
-        if (
-            newSurvey.questions.some((q) =>
-                q.options.some((opt) => opt.trim() === "")
-            )
-        ) {
-            alert("Lütfen tüm seçenekleri doldurun!");
-            return;
-        }
-
-        try {
-            if (isEditMode) {
-                // Düzenleme
-                await updateDoc(doc(db, "surveys", editSurveyId), {
-                    title: newSurvey.title,
-                    questionCount: newSurvey.questionCount,
-                    questions: newSurvey.questions
-                });
-
-                setSurveys((prev) =>
-                    prev.map((s) =>
-                        s.id === editSurveyId
-                            ? {
-                                  ...s,
-                                  title: newSurvey.title,
-                                  questionCount: newSurvey.questionCount,
-                                  questions: newSurvey.questions
-                              }
-                            : s
-                    )
-                );
-                alert("Anket başarıyla güncellendi!");
-            } else {
-                // Ekleme
-                const surveyData = {
-                    title: newSurvey.title,
-                    questionCount: newSurvey.questionCount,
-                    questions: newSurvey.questions,
-                    active: true,
-                    createdAt: new Date().toISOString()
-                };
-
-                const docRef = await addDoc(
-                    collection(db, "surveys"),
-                    surveyData
-                );
-
-                setSurveys((prev) => [
-                    ...prev,
-                    { id: docRef.id, ...surveyData }
-                ]);
-                alert("Anket başarıyla oluşturuldu!");
-            }
-
-            resetModal();
-        } catch (error) {
-            console.error("Anket kaydedilemedi:", error);
-            alert("Anket kaydedilirken bir hata oluştu!");
-        }
-    };
-
     const renderStep1 = () => (
         <div className="modal-form">
             <label>Anket Başlığı</label>
@@ -243,6 +274,19 @@ export default function SurveysTab() {
                     }))
                 }
                 placeholder="Anket başlığını girin"
+            />
+
+            <label>Kategori</label>
+            <input
+                type="text"
+                value={newSurvey.category}
+                onChange={(e) =>
+                    setNewSurvey((prev) => ({
+                        ...prev,
+                        category: e.target.value
+                    }))
+                }
+                placeholder="Kategori girin veya mevcut kategori adını yazın"
             />
 
             <label>Soru Sayısı</label>
@@ -260,92 +304,28 @@ export default function SurveysTab() {
                 }}
                 placeholder="Kaç soru olacak?"
             />
-            
-            {isEditMode && (
-                <div className="edit-mode-notice">
-                    <small>
-                        💡 Düzenleme modunda soru sayısını değiştirebilirsiniz. 
-                        Mevcut sorular korunacak, yeni sorular eklenecek veya fazla sorular kaldırılacak.
-                    </small>
-                </div>
-            )}
-        </div>
-    );
-
-    const renderStep2 = () => (
-        <div className="modal-form questions-form">
-            <h3>Sorular ve Seçenekler</h3>
-            {!newSurvey.questions || newSurvey.questions.length === 0 ? (
-                <div className="loading-notice">
-                    <p>Sorular yükleniyor...</p>
-                </div>
-            ) : (
-                <div className="questions-container">
-                    {newSurvey.questions.map((question, qIndex) => (
-                        <div key={qIndex} className="question-item">
-                            <h4>Soru {qIndex + 1}</h4>
-                            <input
-                                type="text"
-                                value={question.question}
-                                onChange={(e) =>
-                                    updateQuestion(
-                                        qIndex,
-                                        "question",
-                                        e.target.value
-                                    )
-                                }
-                                placeholder="Soruyu yazın"
-                                className="question-input"
-                            />
-
-                            <div className="options-container">
-                                <label>Seçenekler:</label>
-                                {question.options.map((option, oIndex) => (
-                                    <div key={oIndex} className="option-item">
-                                        <input
-                                            type="text"
-                                            value={option}
-                                            onChange={(e) =>
-                                                updateOption(
-                                                    qIndex,
-                                                    oIndex,
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder={`Seçenek ${oIndex + 1}`}
-                                            className="option-input"
-                                        />
-                                        {question.options.length > 2 && (
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    removeOption(qIndex, oIndex)
-                                                }
-                                                className="remove-option-btn"
-                                            >
-                                                ×
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-                                <button
-                                    type="button"
-                                    onClick={() => addOption(qIndex)}
-                                    className="add-option-btn"
-                                >
-                                    + Seçenek Ekle
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
         </div>
     );
 
     return (
         <div className="tab-content">
             <h2>Anket Yönetimi</h2>
+
+            {/* 🔥 Kategoriye Göre Filtre */}
+            <div className="filter-container">
+                <label>Kategoriye Göre Filtre:</label>
+                <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                    <option value="Tümü">Tümü</option>
+                    {categories.map((cat, index) => (
+                        <option key={index} value={cat}>
+                            {cat}
+                        </option>
+                    ))}
+                </select>
+            </div>
 
             <button
                 className="logout-btn"
@@ -358,42 +338,24 @@ export default function SurveysTab() {
                 + Yeni Anket Ekle
             </button>
 
-            {/* İstatistikler */}
-            <div className="stats-grid">
-                <div className="stat-card">
-                    <div className="stat-number">{surveys.length}</div>
-                    <div className="stat-label">Toplam Anket</div>
-                </div>
-                <div className="stat-card active">
-                    <div className="stat-number">
-                        {surveys.filter((s) => s.active).length}
-                    </div>
-                    <div className="stat-label">Aktif Anket</div>
-                </div>
-                <div className="stat-card inactive">
-                    <div className="stat-number">
-                        {surveys.filter((s) => !s.active).length}
-                    </div>
-                    <div className="stat-label">Pasif Anket</div>
-                </div>
-            </div>
-
             {/* Anketler Tablosu */}
             <table className="surveys-table">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Başlık</th>
+                        <th>Kategori</th>
                         <th>Soru Sayısı</th>
                         <th>Durum</th>
                         <th>İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {surveys.map((survey) => (
+                    {filteredSurveys.map((survey) => (
                         <tr key={survey.id}>
                             <td>{survey.id}</td>
                             <td>{survey.title}</td>
+                            <td>{survey.category || "Yok"}</td>
                             <td>{survey.questionCount || 0}</td>
                             <td>
                                 <span
@@ -414,7 +376,11 @@ export default function SurveysTab() {
                                         setEditSurveyId(survey.id);
                                         setNewSurvey({
                                             title: survey.title,
-                                            questionCount: survey.questionCount || survey.questions?.length || 1,
+                                            category: survey.category || "",
+                                            questionCount:
+                                                survey.questionCount ||
+                                                survey.questions?.length ||
+                                                1,
                                             questions: survey.questions || []
                                         });
                                         setModalStep(1);
@@ -424,7 +390,7 @@ export default function SurveysTab() {
                                     Düzenle
                                 </button>
                                 <button
-                                    className={`action-btn toggle ${survey.active ? 'active' : 'inactive'}`}
+                                    className={`action-btn toggle ${survey.active ? "active" : "inactive"}`}
                                     onClick={() => toggleSurveyStatus(survey.id)}
                                     style={{ marginLeft: "5px" }}
                                 >
@@ -446,14 +412,14 @@ export default function SurveysTab() {
             {/* Modal */}
             {showModal && (
                 <div className="modal-overlay">
-                    <div className={`modal-content large-modal ${isEditMode ? 'edit-mode' : ''}`}>
+                    <div className="modal-content large-modal">
                         <div className="modal-header">
                             <h2>
                                 {isEditMode
                                     ? "Anketi Düzenle"
                                     : modalStep === 1
-                                    ? "Yeni Anket Ekle - Adım 1/2"
-                                    : "Yeni Anket Ekle - Adım 2/2"}
+                                        ? "Yeni Anket Ekle - Adım 1/2"
+                                        : "Yeni Anket Ekle - Adım 2/2"}
                             </h2>
                             <button
                                 className="modal-close"
@@ -463,7 +429,59 @@ export default function SurveysTab() {
                             </button>
                         </div>
 
-                        {modalStep === 1 ? renderStep1() : renderStep2()}
+                        {modalStep === 1 ? renderStep1() : (
+                            <div className="modal-form questions-form">
+                                <h3>Sorular ve Seçenekler</h3>
+                                {newSurvey.questions.map((question, qIndex) => (
+                                    <div key={qIndex} className="question-item">
+                                        <h4>Soru {qIndex + 1}</h4>
+                                        <input
+                                            type="text"
+                                            value={question.question}
+                                            onChange={(e) =>
+                                                updateQuestion(qIndex, "question", e.target.value)
+                                            }
+                                            placeholder="Soruyu yazın"
+                                            className="question-input"
+                                        />
+                                        <div className="options-container">
+                                            <label>Seçenekler:</label>
+                                            {question.options.map((option, oIndex) => (
+                                                <div key={oIndex} className="option-item">
+                                                    <input
+                                                        type="text"
+                                                        value={option}
+                                                        onChange={(e) =>
+                                                            updateOption(qIndex, oIndex, e.target.value)
+                                                        }
+                                                        placeholder={`Seçenek ${oIndex + 1}`}
+                                                        className="option-input"
+                                                    />
+                                                    {question.options.length > 2 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removeOption(qIndex, oIndex)
+                                                            }
+                                                            className="remove-option-btn"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={() => addOption(qIndex)}
+                                                className="add-option-btn"
+                                            >
+                                                + Seçenek Ekle
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <div className="modal-actions">
                             <button
