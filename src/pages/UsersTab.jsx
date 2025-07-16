@@ -316,12 +316,14 @@ const UsersTab = () => {
                                                     onClick={() => openEditModal(user)}
                                                 >
                                                     <Edit className="icon" />
+                                                    Düzenle
                                                 </button>
                                                 <button
                                                     className="delete-btn"
                                                     onClick={() => handleDeleteUser(user.id)}
                                                 >
                                                     <Trash2 className="icon" />
+                                                    Sil
                                                 </button>
                                             </td>
                                         </tr>
