@@ -1,41 +1,94 @@
+/* Container - tam ekran koyu arkaplan */
 .solve-survey-container {
-    max-width: 800px;
-    margin: 40px auto;
-    background: #f7f9fc;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.question-block {
-    margin-bottom: 20px;
-}
-
-.option-label {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e293b 0%, #2d3748 50%, #374151 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+  
+  /* Kart benzeri stil */
+  .survey-card {
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    color: #f1f5f9;
+  }
+  
+  .survey-card h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  
+  .question-block {
+    margin-bottom: 24px;
+  }
+  
+  .question-block h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .option-label {
     display: block;
-    margin: 8px 0;
+    background-color: #475569;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
     cursor: pointer;
-}
-
-.submit-btn {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 6px;
+    transition: background-color 0.2s;
+  }
+  
+  .option-label:hover {
+    background-color: #64748b;
+  }
+  
+  .option-label input {
+    margin-right: 8px;
+  }
+  
+  .submit-btn {
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 9999px;
+    font-weight: 600;
     border: none;
     cursor: pointer;
-}
-
-.submit-btn:hover {
-    background-color: #0056b3;
-}
-
-.result-container {
+    width: 100%;
+    font-size: 1rem;
+    transition: background 0.2s;
+  }
+  
+  .submit-btn:hover {
+    background: linear-gradient(90deg, #6d28d9, #9333ea);
+  }
+  
+  .result-container {
+    background-color: #334155;
+    padding: 32px;
+    border-radius: 16px;
     text-align: center;
-    margin-top: 50px;
-}
-
-.result-container h2 {
-    font-size: 28px;
-    margin-bottom: 20px;
-}
+    color: #f1f5f9;
+    border: 1px solid #475569;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  }
+  
+  .result-container h2 {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+  }
+  
+  .result-container p {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  

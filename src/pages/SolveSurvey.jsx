@@ -5,7 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import "../css/SolveSurvey.css";
 
 export default function SolveSurvey() {
-    const { id } = useParams(); // URL'den surveyId al
+    const { id } = useParams();
     const [survey, setSurvey] = useState(null);
     const [answers, setAnswers] = useState({});
     const [result, setResult] = useState(null);
@@ -49,7 +49,7 @@ export default function SolveSurvey() {
         let resultMessage = "Sonuç bulunamadı.";
         for (const r of survey.results) {
             if (totalPoints >= r.min && totalPoints <= r.max) {
-                resultMessage = r.message;
+                resultMessage = r.resultText;
                 break;
             }
         }

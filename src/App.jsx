@@ -9,6 +9,7 @@ import AnketPage from './pages/Anketler.jsx'
 import Footer from './components/Footer.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import SolveSurvey from "./pages/SolveSurvey.jsx"
+import Profil from './pages/Profil.jsx'
 
 
 function App() {
@@ -16,10 +17,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/test1" element={<Footer />} />
         <Route path="/Anketler" element={<AnketPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/surveys/:id/solve" element={<SolveSurvey />} />
+        <Route path="/profil" element={<Profil />} />
+
 
 
 

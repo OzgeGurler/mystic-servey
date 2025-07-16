@@ -21,7 +21,8 @@ const UsersTab = () => {
         phone: '',
         role: 'user',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        
     });
 
     // Sayfa yüklendiğinde kullanıcıları getir
@@ -94,12 +95,12 @@ const UsersTab = () => {
                 email: formData.email,
                 phone: formData.phone,
                 role: formData.role,
-                password: formData.password
+                password: formData.password,
             };
 
             await UserService.addUser(userData);
             setShowAddModal(false);
-            setFormData({ name: '', email: '', phone: '', role: 'user', password: '', confirmPassword: '' });
+            setFormData({ name: '', email: '', phone: '', role: 'user', password: '', confirmPassword: '',  });
             fetchUsers();
             fetchStats();
             alert('Kullanıcı başarıyla eklendi!');
@@ -136,7 +137,7 @@ const UsersTab = () => {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
-                role: formData.role
+                role: formData.role,
             };
 
             if (formData.password) {
@@ -189,7 +190,7 @@ const UsersTab = () => {
             phone: user.phone || '',
             role: user.role || 'user',
             password: user.password || '',
-            confirmPassword: user.password || ''
+            confirmPassword: user.password || '',
         });
         setShowEditModal(true);
     };
@@ -316,14 +317,12 @@ const UsersTab = () => {
                                                     onClick={() => openEditModal(user)}
                                                 >
                                                     <Edit className="icon" />
-                                                    Düzenle
                                                 </button>
                                                 <button
                                                     className="delete-btn"
                                                     onClick={() => handleDeleteUser(user.id)}
                                                 >
                                                     <Trash2 className="icon" />
-                                                    Sil
                                                 </button>
                                             </td>
                                         </tr>

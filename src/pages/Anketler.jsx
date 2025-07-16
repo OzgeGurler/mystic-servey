@@ -5,12 +5,15 @@ import Footer from '../components/Footer';
 import '../css/Anketler.css';
 import { db } from "../services/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
+import { useNavigate } from 'react-router-dom';
 
 function AnketPage () {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('newest');
     const [filterCategory, setFilterCategory] = useState('all');
     const [surveys, setSurveys] = useState([]);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchSurveys = async () => {
@@ -117,7 +120,12 @@ function AnketPage () {
                 <div className="survey-container">
                     <div className="survey-grid">
                         {sortedSurveys.map((survey) => (
-                            <div key={survey.id} className="survey-card">
+                            <div
+                            key={survey.id}
+                            className="survey-card"
+                            onClick={() => navigate(`/surveys/${survey.id}/solve`)}
+                            style={{ cursor: "pointer" }}
+                            >
                                 {survey.trending && (
                                     <div className="trending-badge">🔥 Trend</div>
                                 )}

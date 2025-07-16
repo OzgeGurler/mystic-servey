@@ -1,0 +1,56 @@
+/* Profil Page Styles - Dark Blue Theme */
+
+.profil-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e293b 0%, #2d3748 50%, #374151 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+  
+  .profil-card {
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    color: #f1f5f9;
+  }
+  
+  .profil-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  
+  .profil-info p,
+  .profil-survey p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+  
+  .profil-survey h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  
+  .profil-card strong {
+    color: #a855f7;
+  }
+  
+  @media (min-width: 768px) {
+    .profil-card {
+      padding: 40px;
+    }
+  }
+  
