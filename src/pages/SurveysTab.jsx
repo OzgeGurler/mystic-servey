@@ -16,6 +16,9 @@ export default function SurveysTab() {
     const [categories, setCategories] = useState([]);
     const [filteredSurveys, setFilteredSurveys] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("Tümü");
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState("");
+    const [selectedDeleteCategory, setSelectedDeleteCategory] = useState("");
 
     const [showModal, setShowModal] = useState(false);
     const [modalStep, setModalStep] = useState(1);
@@ -77,6 +80,60 @@ export default function SurveysTab() {
         }
     };
 
+    const addNewCategory = async () => {
+        if (!newCategoryName.trim()) {
+            alert("Kategori adı boş olamaz!");
+            return;
+        }
+        
+        if (categories.includes(newCategoryName.trim())) {
+            alert("Bu kategori zaten mevcut!");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "categories"), { name: newCategoryName.trim() });
+            fetchCategories();
+            setNewCategoryName("");
+            alert("Kategori başarıyla eklendi!");
+        } catch (err) {
+            console.error("Kategori eklenemedi:", err);
+            alert("Kategori eklenemedi!");
+        }
+    };
+
+    const deleteCategory = async () => {
+        if (!selectedDeleteCategory) {
+            alert("Silinecek kategori seçiniz!");
+            return;
+        }
+
+        const categoryInUse = surveys.some(survey => survey.category === selectedDeleteCategory);
+        if (categoryInUse) {
+            alert("Bu kategori hala kullanımda! Önce bu kategorideki anketleri silin veya başka kategoriye taşıyın.");
+            return;
+        }
+
+        if (!window.confirm(`"${selectedDeleteCategory}" kategorisini silmek istediğinize emin misiniz?`)) {
+            return;
+        }
+
+        try {
+            const catSnapshot = await getDocs(collection(db, "categories"));
+            const catDoc = catSnapshot.docs.find((doc) => doc.data().name === selectedDeleteCategory);
+            
+            if (catDoc) {
+                await deleteDoc(doc(db, "categories", catDoc.id));
+                fetchCategories();
+                setSelectedDeleteCategory("");
+                alert("Kategori başarıyla silindi!");
+            }
+        } catch (err) {
+            console.error("Kategori silinemedi:", err);
+            alert("Kategori silinemedi!");
+        }
+    };
+
     const toggleSurveyStatus = async (id) => {
         try {
             const survey = surveys.find((s) => s.id === id);
@@ -132,6 +189,12 @@ export default function SurveysTab() {
         setEditSurveyId(null);
         setModalStep(1);
         setShowModal(false);
+    };
+
+    const resetCategoryModal = () => {
+        setShowCategoryModal(false);
+        setNewCategoryName("");
+        setSelectedDeleteCategory("");
     };
 
     const handleStep1Next = () => {
@@ -290,15 +353,23 @@ export default function SurveysTab() {
                 </select>
             </div>
 
-            <button
-                className="add-btn"
-                onClick={() => {
-                    resetModal();
-                    setShowModal(true);
-                }}
-            >
-                + Yeni Anket
-            </button>
+            <div className="buttons-container">
+                <button
+                    className="add-btn"
+                    onClick={() => {
+                        resetModal();
+                        setShowModal(true);
+                    }}
+                >
+                    + Yeni Anket
+                </button>
+                <button
+                    className="category-btn"
+                    onClick={() => setShowCategoryModal(true)}
+                >
+                    Kategori
+                </button>
+            </div>
 
             {/* Anketler Tablosu */}
             <table className="surveys-table">
@@ -390,8 +461,7 @@ export default function SurveysTab() {
                                     placeholder="Anket başlığı"
                                 />
                                 <label>Kategori</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={newSurvey.category}
                                     onChange={(e) =>
                                         setNewSurvey((prev) => ({
@@ -399,8 +469,14 @@ export default function SurveysTab() {
                                             category: e.target.value,
                                         }))
                                     }
-                                    placeholder="Kategori"
-                                />
+                                >
+                                    <option value="">Kategori Seçiniz</option>
+                                    {categories.map((cat, i) => (
+                                        <option key={i} value={cat}>
+                                            {cat}
+                                        </option>
+                                    ))}
+                                </select>
                                 <label>Soru Sayısı</label>
                                 <input
                                     type="number"
@@ -567,6 +643,59 @@ export default function SurveysTab() {
                             )}
                             <button onClick={resetModal} className="cancel-btn">
                                 İptal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showCategoryModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h2>Kategori</h2>
+                            <button className="close-btn" onClick={resetCategoryModal}>
+                                ×
+                            </button>
+                        </div>
+                        <div className="modal-form">
+                            <div className="category-actions">
+                                <div className="category-add-section">
+                                    <h3>Kategori Ekle</h3>
+                                    <input
+                                        type="text"
+                                        value={newCategoryName}
+                                        onChange={(e) => setNewCategoryName(e.target.value)}
+                                        placeholder="Kategori adı giriniz"
+                                    />
+                                    <button onClick={addNewCategory} className="add-category-action-btn">
+                                        Kategori Ekle
+                                    </button>
+                                </div>
+                                
+                                <div className="category-delete-section">
+                                    <h3>Kategori Sil</h3>
+                                    <select
+                                        value={selectedDeleteCategory}
+                                        onChange={(e) => setSelectedDeleteCategory(e.target.value)}
+                                    >
+                                        <option value="">Silinecek kategori seçiniz</option>
+                                        {categories.map((cat, i) => (
+                                            <option key={i} value={cat}>
+                                                {cat}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button onClick={deleteCategory} className="delete-category-action-btn">
+                                        Kategori Sil
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="modal-actions">
+                            <button onClick={resetCategoryModal} className="cancel-btn">
+                                Kapat
                             </button>
                         </div>
                     </div>
