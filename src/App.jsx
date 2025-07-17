@@ -13,6 +13,10 @@ import Profil from './pages/Profil.jsx'
 import Ayarlar from './pages/Ayarlar.jsx'
 
 
+
+// Tasarımları şuanlık basit ve sade yapıyorum tüm sistemler bitsin öyle detaylandırırım
+// ya da istediğin gibi tasarım değişikliğini yapmaya başla
+
 function App() {
   return (
     <BrowserRouter>
