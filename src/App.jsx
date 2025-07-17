@@ -10,6 +10,7 @@ import Footer from './components/Footer.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import SolveSurvey from "./pages/SolveSurvey.jsx"
 import Profil from './pages/Profil.jsx'
+import Ayarlar from './pages/Ayarlar.jsx'
 
 
 function App() {
@@ -21,6 +22,8 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/surveys/:id/solve" element={<SolveSurvey />} />
         <Route path="/profil" element={<Profil />} />
+        <Route path="/ayarlar" element={<Ayarlar />} />
+
 
 
 
