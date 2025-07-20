@@ -12,7 +12,6 @@ function AnketPage () {
     const [sortBy, setSortBy] = useState('newest');
     const [filterCategory, setFilterCategory] = useState('all');
     const [surveys, setSurveys] = useState([]);
-
     const navigate = useNavigate();
 
     useEffect(() => {

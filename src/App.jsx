@@ -8,9 +8,11 @@ import Header from './components/Header.jsx'
 import AnketPage from './pages/Anketler.jsx'
 import Footer from './components/Footer.jsx'
 import AdminPage from './pages/AdminPage.jsx'
+import AdminRoute from "./components/AdminRoute";
 import SolveSurvey from "./pages/SolveSurvey.jsx"
 import Profil from './pages/Profil.jsx'
 import Ayarlar from './pages/Ayarlar.jsx'
+import AdminGiris from './components/AdminGiris.jsx'
 
 
 
@@ -23,10 +25,16 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Anketler" element={<AnketPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin" element={
+        <AdminRoute>
+          <AdminPage />
+        </AdminRoute>
+        } />
         <Route path="/surveys/:id/solve" element={<SolveSurvey />} />
         <Route path="/profil" element={<Profil />} />
         <Route path="/ayarlar" element={<Ayarlar />} />
+        <Route path="/admingiris" element={<AdminGiris />} />
+
 
 
 

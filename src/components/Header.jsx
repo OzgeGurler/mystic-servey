@@ -103,6 +103,12 @@ function Header() {
                                         <Link to="/anketlerim" className="user-menu-item" onClick={() => setMenuOpen(false)}>
                                             <FileText size={16} /> Anketlerim
                                         </Link>
+                                    
+                                    {user && user.role === "admin" && (
+                                        <Link to="/admin" className="user-menu-item" onClick={() => setMenuOpen(false)}>
+                                            Admin Paneli
+                                        </Link>
+                                    )}
                                         <button onClick={handleLogout} className="user-menu-item">
                                             <LogOut size={16} /> Çıkış Yap
                                         </button>
