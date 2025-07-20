@@ -23,7 +23,8 @@ const addUser = async (userData) => {
     ...userData,
     isActive: true,
     createdAt: serverTimestamp(),
-    completesurvey: 0
+    completesurvey: 0,
+    completedSurvey: []
   });
 };
 

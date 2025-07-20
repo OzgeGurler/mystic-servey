@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../services/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import "../css/SolveSurvey.css";
 
 export default function SolveSurvey() {
@@ -34,7 +35,7 @@ export default function SolveSurvey() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         let totalPoints = 0;
@@ -58,6 +59,43 @@ export default function SolveSurvey() {
             totalPoints,
             message: resultMessage
         });
+
+        try {
+            const userInfo = JSON.parse(localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo"));
+            if (userInfo && userInfo.id) {
+                const userRef = doc(db, "users", userInfo.id);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const completedSurveys = Array.isArray(userData.completedSurveys) ? userData.completedSurveys : [];
+
+                    if (!completedSurveys.includes(String(id))) {
+                        const currentCount = userData.completesurvey || 0;
+                        const userAnswers = Array.isArray(userData.userAnswers) ? userData.userAnswers : [];
+
+                        const answersArray = Object.entries(answers).map(([qIndex, optionIndex]) => ({
+                            questionIndex: parseInt(qIndex),
+                            optionIndex
+                        }));
+
+                        await updateDoc(userRef, {
+                            completesurvey: currentCount + 1,
+                            completedSurveys: [...completedSurveys, String(id)],
+                            userAnswers: [...userAnswers, {
+                                surveyId: id,
+                                answers: answersArray
+                            }]
+                        });
+                        console.log("✅ completesurvey ve cevaplar kaydedildi:", id);
+                    } else {
+                        console.log("ℹ️ Bu anket zaten çözülmüş, sayı artmadı.");
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("❌ completesurvey/cevap kaydedilemedi:", err);
+        }
     };
 
     if (!survey) {
