@@ -28,13 +28,14 @@ export default function SurveysTab() {
     const [newSurvey, setNewSurvey] = useState({
         title: "",
         category: "",
+        description: '',
         questionCount: 1,
         questions: [],
         results: [],
     });
 
     useEffect(() => {
-        fetchSurveys();
+        fetchSurveys(); 
         fetchCategories();
     }, []);
 
@@ -456,6 +457,18 @@ export default function SurveysTab() {
                                         setNewSurvey((prev) => ({
                                             ...prev,
                                             title: e.target.value,
+                                        }))
+                                    }
+                                    placeholder="Anket başlığı"
+                                />
+                                <label>Açıklama</label>
+                                <input
+                                    type="text"
+                                    value={newSurvey.description}
+                                    onChange={(e) =>
+                                        setNewSurvey((prev) => ({
+                                            ...prev,
+                                            description: e.target.value,
                                         }))
                                     }
                                     placeholder="Anket başlığı"

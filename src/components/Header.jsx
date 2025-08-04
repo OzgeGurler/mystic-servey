@@ -127,17 +127,25 @@ function Header() {
 
             <RegisterPopUp
                 isOpen={isRegOpen}
-                onClose={() => setIsRegOpen(false)} 
-            />
-
-            <LoginPopUp
-                isOpen={isLoginOpen}
-                onClose={() => setIsLoginOpen(false)}
-                onLoginSuccess={(loggedInUser) => {
-                    setUser(loggedInUser);
-                    setIsLoginOpen(false);
+                onClose={() => setIsRegOpen(false)}
+                onLoginClick={() => {
+                setIsRegOpen(false);
+                setIsLoginOpen(true);
                 }}
             />
+
+                <LoginPopUp
+                    isOpen={isLoginOpen}
+                    onClose={() => setIsLoginOpen(false)}
+                    onRegisterClick={() => {
+                        setIsLoginOpen(false);
+                        setIsRegOpen(true);
+                    }}
+                    onLoginSuccess={(loggedInUser) => {
+                        setUser(loggedInUser);
+                        setIsLoginOpen(false);
+                    }}
+                />
         </>
     );
 }

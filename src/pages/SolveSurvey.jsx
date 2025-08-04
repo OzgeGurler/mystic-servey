@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { Star } from 'lucide-react';
 import { useParams } from "react-router-dom";
 import { db } from "../services/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -10,6 +11,47 @@ export default function SolveSurvey() {
     const [survey, setSurvey] = useState(null);
     const [answers, setAnswers] = useState({});
     const [result, setResult] = useState(null);
+    const [rating, setRating] = useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
+
+    const handleStartClick = (starValue) => {
+        setRating(starValue);
+    }
+
+    const handleStarHover = (starValue) => {
+        setHoverRating(starValue);
+    }
+
+    const handleMouseLeave = () => {
+        setHoverRating(0);
+    }
+
+    const handleStarSubmit = async () => {
+        try {
+            const surveyRef = doc(db, "surveys", id);
+            const surveySnap = await getDoc(surveyRef);
+            if (surveySnap.exists()) {
+                const surveyData = surveySnap.data();
+                const prevStars = surveyData.totalStars || 0;
+                const prevCount = surveyData.ratingCount || 0;
+
+                const updatedStars = prevStars + rating;
+                const updatedCount = prevCount + 1;
+                const avg = updatedStars / updatedCount;
+
+                await updateDoc(surveyRef, {
+                    totalStars: updatedStars,
+                    ratingCount: updatedCount,
+                    avarageRating: parseFloat(avg.toFixed(1))
+                });
+
+
+                alert("Teşekkürlet ${rating} yıldız verdiniz.");
+            }
+        } catch (err) {
+            console.error("Yıldız gönderimi başarısız", err)
+        }
+    };
 
     useEffect(() => {
         const fetchSurvey = async () => {
@@ -104,11 +146,44 @@ export default function SolveSurvey() {
 
     if (result) {
         return (
+            <>
             <div className="result-container">
                 <h2>Sonuç</h2>
                 <p><strong>Puanınız:</strong> {result.totalPoints}</p>
                 <p>{result.message}</p>
             </div>
+                <div className="result-rating">
+                <h2> Anketi Puanla </h2>
+                    <div className="rating-container">
+                    {[1, 2, 3, 4, 5].map((starValue) => (
+                    <Star 
+                    key={starValue}
+                    size={40}
+                    className="result-stars"
+                    onClick={() => handleStartClick(starValue)}
+                    onMouseEnter={() => handleStarHover(starValue)}
+                    onMouseLeave={handleMouseLeave}
+                    />
+                    ))}
+                    </div>
+
+                    <div className="rating-text">
+                        {rating > 0 && (
+                            <p className="rating-results">
+                                Puanınız <span className="font-bold text-blue-600">{rating} / 5</span>
+                            </p>
+                        )}
+
+                        {rating > 0 && (
+                            <button 
+                            className="rating-button"
+                            onClick={handleStarSubmit}
+                            >
+                            </button>
+                        )}
+                    </div>
+                </div>
+                </>
         );
     }
 

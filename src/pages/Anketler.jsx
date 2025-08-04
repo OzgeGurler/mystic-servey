@@ -4,16 +4,68 @@ import Header from "../components/Header";
 import Footer from '../components/Footer';
 import '../css/Anketler.css';
 import { db } from "../services/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
+import LoginPopUp from "../components/LoginPopUp.jsx";
 
 function AnketPage () {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('newest');
     const [filterCategory, setFilterCategory] = useState('all');
     const [surveys, setSurveys] = useState([]);
+    const [isLoginOpen, setIsLoginOpen] = useState(false);
     const navigate = useNavigate();
 
+    const handleParticipantSubmit = async (surveyId) => {
+        try {
+            const rawUser = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+            const userInfo = rawUser ? JSON.parse(rawUser) : null;
+            if (!userInfo || !userInfo.id) {
+                setIsLoginOpen(true);
+                return;
+            }
+
+            const userRef = doc(db, "users", userInfo.id);
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists()) {
+                console.error("kullanıcı bulunamadı")
+            }
+
+            const userData = userSnap.data();
+            const participated = Array.isArray(userData.participatedSurveys)
+            ? userData.participatedSurveys
+            : [];
+
+            if (!participated.includes(surveyId)) {
+                const surveyRef = doc(db, 'surveys', surveyId)
+                const surveySnap = await getDoc(surveyRef)
+
+                if (surveySnap.exists()) {
+                    const surveyData = surveySnap.data();
+                    const updatedParticipant = (surveyData.Participant || 0) + 1;
+
+                    await updateDoc(surveyRef, {
+                        Participant: updatedParticipant
+                    });
+                }
+            
+            await updateDoc(userRef, {
+                participatedSurveys: [...participated, surveyId]
+            });
+            console.log("✅ Katılım kaydedildi:", surveyId);
+            } else {
+            console.log("ℹ️ Bu kullanıcı bu ankete zaten katılmış.");
+            }
+            navigate(`/surveys/${surveyId}/solve`);
+        } catch (err) {
+            console.error("❌ Katılım işlemi başarısız:", err);
+        } 
+    }
+    
+    
+    
+    
     useEffect(() => {
         const fetchSurveys = async () => {
             try {
@@ -43,11 +95,9 @@ function AnketPage () {
             case 'oldest':
                 return new Date(a.createdAt) - new Date(b.createdAt);
             case 'popular':
-                return (b.participantCount || 0) - (a.participantCount || 0);
+                return (b.Participant || 0) - (a.Participant || 0);
             case 'rating':
                 return (b.rating || 0) - (a.rating || 0);
-            case 'reward':
-                return (b.reward || 0) - (a.reward || 0);
             default:
                 return 0;
         }
@@ -122,7 +172,7 @@ function AnketPage () {
                             <div
                             key={survey.id}
                             className="survey-card"
-                            onClick={() => navigate(`/surveys/${survey.id}/solve`)}
+                            onClick={() => handleParticipantSubmit(survey.id)}
                             style={{ cursor: "pointer" }}
                             >
                                 {survey.trending && (
@@ -134,7 +184,7 @@ function AnketPage () {
                                     </div>
                                     <div className="rating-container">
                                         <Star className="rating-star" />
-                                        <span className="rating-text">{survey.rating || 0}</span>
+                                        <span className="rating-text">{survey.avarageRating || 0}</span>
                                     </div>
                                 </div>
                                 <div className="category-badge">
@@ -145,18 +195,10 @@ function AnketPage () {
                                 <div className="card-stats">
                                     <div className="stat-item">
                                         <Users className="stat-icon stat-users" />
-                                        <span className="stat-text">{(survey.participantCount || 0).toLocaleString()}</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <Clock className="stat-icon stat-clock" />
-                                        <span className="stat-text">{survey.duration || "-"}</span>
+                                        <span className="stat-text">{(survey.Participant || 0).toLocaleString()}</span>
                                     </div>
                                 </div>
                                 <div className="card-footer">
-                                    <div className="reward-container">
-                                        <Award className="reward-icon" />
-                                        <span className="reward-text">{survey.reward || 0} Puan</span>
-                                    </div>
                                     <ChevronRight className="arrow-icon" />
                                 </div>
                                 <div className="card-overlay" />
@@ -173,6 +215,15 @@ function AnketPage () {
                 </div>
             </div>
             <Footer />
+
+            <LoginPopUp
+                isOpen={isLoginOpen}
+                onClose={() => setIsLoginOpen(false)}
+                onLoginSuccess={(loggedInUser) => {
+                    setUser(loggedInUser);
+                    setIsLoginOpen(false);
+                }}
+                />
         </>
     );
 }

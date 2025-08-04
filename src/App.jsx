@@ -7,17 +7,13 @@ import Home from './pages/Home.jsx'
 import Header from './components/Header.jsx'
 import AnketPage from './pages/Anketler.jsx'
 import Footer from './components/Footer.jsx'
-import AdminPage from './pages/AdminPage.jsx'
+import AdminPage from './admin/AdminPage.jsx'
 import AdminRoute from "./components/AdminRoute";
 import SolveSurvey from "./pages/SolveSurvey.jsx"
 import Profil from './pages/Profil.jsx'
 import Ayarlar from './pages/Ayarlar.jsx'
 import AdminGiris from './components/AdminGiris.jsx'
 
-
-
-// Tasarımları şuanlık basit ve sade yapıyorum tüm sistemler bitsin öyle detaylandırırım
-// ya da istediğin gibi tasarım değişikliğini yapmaya başla
 
 function App() {
   return (
@@ -34,9 +30,6 @@ function App() {
         <Route path="/profil" element={<Profil />} />
         <Route path="/ayarlar" element={<Ayarlar />} />
         <Route path="/admingiris" element={<AdminGiris />} />
-
-
-
 
 
 
