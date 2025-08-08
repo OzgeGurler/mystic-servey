@@ -10,12 +10,21 @@ function Header() {
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [siteTitle, setSiteTitle] = useState('Mystic Survey');
+    const [showContactLink, setShowContactLink] = useState(true);
+    const [hideOnScroll, setHideOnScroll] = useState(true);
 
     useEffect(() => {
         const savedUser = JSON.parse(localStorage.getItem('userInfo')) || JSON.parse(sessionStorage.getItem('userInfo'));
         if (savedUser) {
             setUser(savedUser);
         }
+        try {
+            const settings = JSON.parse(localStorage.getItem('appSettings')) || {};
+            if (settings.siteTitle) setSiteTitle(settings.siteTitle);
+            if (typeof settings.showContactLink === 'boolean') setShowContactLink(settings.showContactLink);
+            if (settings.header && typeof settings.header.hideOnScroll === 'boolean') setHideOnScroll(settings.header.hideOnScroll);
+        } catch {}
     }, []);
 
     const handleLogout = () => {
@@ -30,6 +39,7 @@ function Header() {
     };
 
     useEffect(() => {
+        if (!hideOnScroll) return;
         let lastScrollTop = 0;
         const scrollThreshold = 50;
 
@@ -69,21 +79,22 @@ function Header() {
         return () => {
             window.removeEventListener('scroll', throttledScrollHandler);
         };
-    }, []);
+    }, [hideOnScroll]);
 
     return (
         <>
             <header className='header'>
                 <div className="header-container">
-                    <div className="logo">
+                    <Link to="/" className="logo" aria-label="Ana sayfa">
                         <div className="logo-icon">
                             <ClipboardList />
                         </div>
-                        <h1 className="logo-text">Mystic Survey</h1>
-                    </div>
+                        <h1 className="logo-text">{siteTitle}</h1>
+                    </Link>
                     <nav className="nav">
                         <Link to="/">Ana Sayfa</Link>
                         <Link to="/Anketler">Anketler</Link>
+                        {showContactLink && <Link to="/iletisim">İletişim</Link>}
                     </nav>
 
                     <div className="header-buttons">

@@ -5,50 +5,45 @@
   gap: 20px;
 }
 
-/* Tab Content Container */
+/* Dark theme alignment for Admin */
 .tab-content {
-  padding: 20px;
+  padding: 16px;
 }
 
 .tab-content h2 {
-  font-size: 2rem;
+  font-size: 22px;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
+  margin-bottom: 10px;
+  background: none;
+  -webkit-text-fill-color: initial;
 }
 
 /* Filter Container */
 .filter-container {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: transparent;
+  border-radius: 10px;
 }
 
 .filter-container label {
   font-weight: 600;
-  color: #555;
+  color: #c9d1d9;
   font-size: 1rem;
   white-space: nowrap;
 }
 
 .filter-container select {
-  padding: 8px 12px;
-  border: 2px solid #e0e0e0;
+  padding: 8px 10px;
+  border: 1px solid #222838;
   border-radius: 8px;
-  font-size: 1rem;
-  background: #fff;
-  color: #333;
+  font-size: 14px;
+  background: #151922;
+  color: #e5e7eb;
   cursor: pointer;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   min-width: 150px;
@@ -85,52 +80,42 @@
   transform: translateY(0);
 }
 
-/* Anket Tablosu */
+/* Buttons to match AdminPage */
+.btn-primary { background: #3b82f6; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-weight:600; cursor:pointer; }
+.btn-primary:hover { background:#2563eb; }
+.btn-secondary { background:#151922; color:#c9d1d9; border:1px solid #222833; border-radius:10px; padding:8px 14px; font-weight:600; cursor:pointer; }
+.btn-secondary:hover { background:#1a2030; color:#fff; }
+
+/* Surveys table */
 .surveys-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgb(255, 255, 255);
+  background: #0f1115;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #1f2533;
 }
 
 .surveys-table th,
 .surveys-table td {
-  padding: 16px;
-  text-align: center;
-  border-bottom: 1px solid #eee;
-  color: #000000;
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #1f2533;
+  color: #d1d5db;
 }
 
 .surveys-table th {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: rgb(255, 255, 255);
+  background: #151922;
+  color: #e5e7eb;
   font-weight: 600;
 }
 
-.surveys-table tr:hover {
-  background: rgba(102, 126, 234, 0.05);
-  transition: background 0.3s ease;
-}
+.surveys-table tr:hover { background: #0d1220; transition: background 0.25s ease; }
 
-/* Anket Durumu Etiketi */
-.survey-status {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: rgb(255, 255, 255);
-  display: inline-block;
-}
-
-.survey-status.active {
-  background: linear-gradient(135deg, #38a169, #2f855a);
-}
-
-.survey-status.inactive {
-  background: linear-gradient(135deg, #e53e3e, #c53030);
-}
+/* Status chips */
+.survey-status { padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight:600; color:#fff; }
+.survey-status.active { background:#10b981; }
+.survey-status.inactive { background:#ef4444; }
 
 /* Eylem Butonları Konteyner */
 .surveys-table td:last-child {
@@ -138,91 +123,15 @@
   padding: 12px 16px;
 }
 
-/* Eylem Butonları - Temel Stil */
-.edit-btn,
-.status-btn,
-.delete-btn {
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: all 0.3s ease;
-  margin: 0 3px;
-  min-width: 80px;
-  display: inline-block;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Düzenle Butonu */
-.edit-btn {
-  background: linear-gradient(135deg, #4299e1, #3182ce);
-  color: white;
-  box-shadow: 0 2px 8px rgba(66, 153, 225, 0.3);
-}
-
-.edit-btn:hover {
-  background: linear-gradient(135deg, #3182ce, #2c5282);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
-}
-
-.edit-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(66, 153, 225, 0.3);
-}
-
-/* Status Toggle Butonu */
-.status-btn {
-  font-size: 0.8rem;
-  padding: 6px 12px;
-  min-width: 75px;
-}
-
-.status-btn.active {
-  background: linear-gradient(135deg, #ffa500, #ff8c00);
-  color: white;
-  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
-}
-
-.status-btn.active:hover {
-  background: linear-gradient(135deg, #ff8c00, #e6780d);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
-}
-
-.status-btn.inactive {
-  background: linear-gradient(135deg, #38a169, #2f855a);
-  color: white;
-  box-shadow: 0 2px 8px rgba(56, 161, 105, 0.3);
-}
-
-.status-btn.inactive:hover {
-  background: linear-gradient(135deg, #2f855a, #276749);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4);
-}
-
-/* Sil Butonu */
-.delete-btn {
-  background: linear-gradient(135deg, #e53e3e, #c53030);
-  color: white;
-  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.3);
-}
-
-.delete-btn:hover {
-  background: linear-gradient(135deg, #c53030, #9c2626);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
-}
-
-.delete-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(229, 62, 62, 0.3);
-}
+/* Action buttons */
+.edit-btn, .status-btn, .delete-btn {
+  border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight:600; font-size:12px; margin: 0 4px; }
+.edit-btn { background:#3b82f6; color:#fff; }
+.edit-btn:hover { background:#2563eb; }
+.status-btn.active { background:#f59e0b; color:#111827; }
+.status-btn.inactive { background:#10b981; color:#0b1a13; }
+.delete-btn { background:#ef4444; color:#fff; }
+.delete-btn:hover { background:#dc2626; }
 
 /* Buton grupları için responsif düzen */
 @media (max-width: 768px) {
@@ -265,7 +174,7 @@
 }
 
 .modal-content {
-  background: #fff;
+  background: #0f1115;
   border-radius: 16px;
   padding: 30px;
   width: 95%;
@@ -275,6 +184,8 @@
   position: relative;
   overflow-y: auto;
   max-height: 90vh;
+  color: #e5e7eb;
+  border: 1px solid #1f2533;
 }
 
 .modal-content.large-modal {
@@ -283,7 +194,7 @@
 
 /* Modal Başlık */
 .modal-header {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #1f2533;
   padding-bottom: 15px;
   margin-bottom: 20px;
   position: relative;
@@ -295,10 +206,8 @@
 .modal-header h2 {
   margin: 0;
   font-size: 1.8rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: none;
+  -webkit-text-fill-color: initial;
   flex: 1;
 }
 
@@ -307,7 +216,7 @@
   border: none;
   font-size: 1.8rem;
   font-weight: bold;
-  color: #7e7d7d;
+  color: #a7b0bf;
   cursor: pointer;
   transition: color 0.2s ease;
   padding: 0;
@@ -320,7 +229,7 @@
 }
 
 .close-btn:hover {
-  color: #e53e3e;
+  color: #ef4444;
   transform: scale(1.1);
 }
 
@@ -335,7 +244,7 @@
   font-weight: 600;
   margin-bottom: 5px;
   display: block;
-  color: #555;
+  color: #c9d1d9;
 }
 
 .modal-form input,
@@ -347,6 +256,9 @@
   font-size: 1rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box;
+  background: #151922;
+  border: 1px solid #222838;
+  color: #e5e7eb;
 }
 
 .modal-form input:focus,
@@ -375,8 +287,8 @@
 
 /* Question Item Container */
 .question-item {
-  background: #f9f9f9;
-  border: 1px solid #eee;
+  background: #0d1220;
+  border: 1px solid #1f2533;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
@@ -508,7 +420,7 @@
 }
 
 .add-option-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #3b82f6;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -521,7 +433,7 @@
 }
 
 .add-option-btn:hover {
-  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  background: #2563eb;
   transform: translateY(-1px);
 }
 
@@ -532,8 +444,8 @@
   gap: 12px;
   margin-bottom: 15px;
   padding: 15px;
-  background: #fff;
-  border: 1px solid #e8f0fe;
+  background: #0d1220;
+  border: 1px solid #1f2533;
   border-radius: 10px;
   flex-wrap: wrap;
 }
@@ -595,7 +507,7 @@
 }
 
 .add-result-btn {
-  background: linear-gradient(135deg, #28a745, #218838);
+  background: #10b981;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -610,7 +522,7 @@
 }
 
 .add-result-btn:hover {
-  background: linear-gradient(135deg, #218838, #1e7e34);
+  background: #059669;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
@@ -640,42 +552,42 @@
 }
 
 .back-btn {
-  background: linear-gradient(135deg, #6c757d, #5a6268);
+  background: #6b7280;
   color: #fff;
 }
 
 .back-btn:hover {
-  background: linear-gradient(135deg, #5a6268, #495057);
+  background: #5a6268;
   transform: translateY(-2px);
 }
 
 .next-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #3b82f6;
   color: #fff;
 }
 
 .next-btn:hover {
-  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  background: #2563eb;
   transform: translateY(-2px);
 }
 
 .save-btn {
-  background: linear-gradient(135deg, #28a745, #218838);
+  background: #10b981;
   color: #fff;
 }
 
 .save-btn:hover {
-  background: linear-gradient(135deg, #218838, #1e7e34);
+  background: #059669;
   transform: translateY(-2px);
 }
 
 .cancel-btn {
-  background: linear-gradient(135deg, #e53e3e, #c53030);
+  background: #ef4444;
   color: #fff;
 }
 
 .cancel-btn:hover {
-  background: linear-gradient(135deg, #c53030, #bd2130);
+  background: #c82333;
   transform: translateY(-2px);
 }
 
@@ -851,7 +763,7 @@
 
 /* Modal content */
 .modal-content {
-    background: #fff;
+    background: #0f1115;
     border-radius: 10px;
     width: 90%;
     max-width: 800px;
@@ -958,4 +870,59 @@
 .cancel-btn:hover {
     background: #c82333;
 }
+
+/* Edit select bar */
+.edit-select-bar { display:flex; gap:10px; align-items:center; background:#0f1115; border:1px solid #1f2533; padding:12px; border-radius:10px; margin-bottom:12px; }
+.edit-select-bar label { color:#c9d1d9; }
+.edit-select-bar select { background:#151922; border:1px solid #222838; color:#e5e7eb; padding:8px 10px; border-radius:8px; }
+
+/* Category modal modern */
+.category-modern { display:flex; flex-direction:column; gap:12px; }
+.category-add { display:flex; gap:8px; }
+.category-add input { flex:1; background:#151922; border:1px solid #222838; color:#e5e7eb; padding:8px 10px; border-radius:8px; }
+.category-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { background:#151922; border:1px solid #222838; color:#e5e7eb; padding:6px 10px; border-radius:9999px; display:inline-flex; align-items:center; gap:6px; }
+.chip-remove { background:transparent; border:none; color:#9ca3af; cursor:pointer; font-size:14px; }
+.chip-remove:hover { color:#ef4444; }
+
+/* Enhance selects and inputs for modern look */
+.modal-form select,
+.modal-form input[type="text"],
+.modal-form input[type="number"] {
+  background: #151922;
+  border: 1px solid #222838;
+  color: #e5e7eb;
+  padding: 10px 14px;
+  border-radius: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-form select:focus,
+.modal-form input[type="text"]:focus,
+.modal-form input[type="number"]:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  outline: none;
+}
+
+.modal-form select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #8aa0c7 50%),
+    linear-gradient(135deg, #8aa0c7 50%, transparent 50%);
+  background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 14px) calc(1em + 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.modal-form option[disabled],
+.modal-form option[value=""] {
+  color: #7a8599;
+}
+
+/* Selection modal tweaks */
+.modal-content .modal-form select { min-height: 40px; }
+.modal-content .modal-actions .btn-primary { border-radius: 10px; }
+
+/* Ensure select in edit-select-bar matches */
+.edit-select-bar select { min-height: 38px; }
 

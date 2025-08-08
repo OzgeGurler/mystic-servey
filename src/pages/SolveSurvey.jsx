@@ -90,16 +90,19 @@ export default function SolveSurvey() {
         });
 
         let resultMessage = "Sonuç bulunamadı.";
+        let resultImage = '';
         for (const r of survey.results) {
             if (totalPoints >= r.min && totalPoints <= r.max) {
                 resultMessage = r.resultText;
+                resultImage = r.imageUrl || '';
                 break;
             }
         }
 
         setResult({
             totalPoints,
-            message: resultMessage
+            message: resultMessage,
+            imageUrl: resultImage
         });
 
         try {
@@ -149,6 +152,11 @@ export default function SolveSurvey() {
             <>
             <div className="result-container">
                 <h2>Sonuç</h2>
+                {result.imageUrl && (
+                  <div className="result-image">
+                    <img src={result.imageUrl} alt="Sonuç Görseli" />
+                  </div>
+                )}
                 <p><strong>Puanınız:</strong> {result.totalPoints}</p>
                 <p>{result.message}</p>
             </div>
@@ -190,10 +198,18 @@ export default function SolveSurvey() {
     return (
         <div className="solve-survey-container">
             <h2>{survey.title}</h2>
+            {survey.coverImage && (
+              <div className="cover-image">
+                <img src={survey.coverImage} alt={survey.title} />
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
                 {survey.questions.map((q, qIndex) => (
                     <div className="question-block" key={qIndex}>
                         <h3>{qIndex + 1}. {q.question}</h3>
+                        {q.imageUrl && (
+                          <div className="question-image"><img src={q.imageUrl} alt={`Soru ${qIndex+1}`} /></div>
+                        )}
                         {q.options.map((option, oIndex) => (
                             <label key={oIndex} className="option-label">
                                 <input

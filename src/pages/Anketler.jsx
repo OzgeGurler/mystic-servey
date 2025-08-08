@@ -187,6 +187,11 @@ function AnketPage () {
                                         <span className="rating-text">{survey.avarageRating || 0}</span>
                                     </div>
                                 </div>
+                                {survey.coverImage && (
+                                    <div className="card-cover">
+                                        <img src={survey.coverImage} alt={survey.title} />
+                                    </div>
+                                )}
                                 <div className="category-badge">
                                     {survey.category || "Kategori Yok"}
                                 </div>

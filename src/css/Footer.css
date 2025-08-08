@@ -14,20 +14,13 @@
   margin-top: 60px; /* Sayfa içeriği ile arasında boşluk */
   opacity: 0;
   transform: translateY(50px);
-  animation: footerSlideUp 0.8s ease-out forwards;
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
 /* Footer animasyonu */
-@keyframes footerSlideUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Intersection Observer ile tetiklenecek class */
 .Footer-bg.footer-visible {
-  animation: footerSlideUp 0.8s ease-out forwards;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .Footer-bg::before {

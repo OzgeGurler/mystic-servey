@@ -1,12 +1,37 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ClipboardList } from 'lucide-react';
 import { FaInstagram, FaTwitter, FaGithub } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import '../css/Footer.css';
 
 function Footer () {
+    const footerRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.unobserve(entry.target);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (footerRef.current) {
+            observer.observe(footerRef.current);
+        }
+
+        return () => {
+            if (footerRef.current) {
+                observer.unobserve(footerRef.current);
+            }
+        };
+    }, []);
+
    return ( 
-   <div className="Footer-bg">
+   <div ref={footerRef} className={`Footer-bg ${isVisible ? 'footer-visible' : ''}`}>
         <div className="footer-container">
             <div className="footer-logo">
                 <div className="footer-icon">
