@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
 import '../css/AdminPage.css';
 
-export default function SettingsTab({ settings, onSave }) {
+export default function SettingsTab({ settings, onSave, onLiveChange }) {
   const [local, setLocal] = useState(settings);
 
   useEffect(() => { setLocal(settings); }, [settings]);
 
   const handleChange = (path, value) => {
-    setLocal(prev => {
+    const nextState = (prev => {
       const next = { ...prev };
       const parts = path.split('.');
       let cur = next;
@@ -19,7 +19,9 @@ export default function SettingsTab({ settings, onSave }) {
       }
       cur[parts[parts.length - 1]] = value;
       return next;
-    });
+    })(local);
+    setLocal(nextState);
+    if (onLiveChange) onLiveChange(nextState);
   };
 
   const handleSubmit = (e) => {
@@ -41,9 +43,14 @@ export default function SettingsTab({ settings, onSave }) {
       confirmations: { delete: true },
       surveys: { defaultQuestionCount: 1, defaultActive: true, showTopBars: true },
       header: { hideOnScroll: true },
-      analytics: { showAnswers: true, showResults: true, showUserEmails: true, maxItems: 100 }
+      analytics: { showAnswers: true, showResults: true, showUserEmails: true, maxItems: 100 },
+      passwordPolicy: { enabled: false, minLength: 8, requireLower: true, requireUpper: true, requireDigit: true },
+      theme: settings.theme || 'dark',
+      headerControls: { search: true, filter: true, export: true, refresh: true },
+      sidebarWidth: 'normal'
     };
     setLocal(defaults);
+    if (onLiveChange) onLiveChange(defaults);
   };
 
   const Hint = ({ children }) => (
@@ -70,21 +77,63 @@ export default function SettingsTab({ settings, onSave }) {
             <h3>Site Ayarları</h3>
             <label>Site Başlığı</label>
             <input type="text" value={local.siteTitle || ''} onChange={(e)=>handleChange('siteTitle', e.target.value)} />
-            <Hint>Anasayfadaki logo metnini günceller</Hint>
+            <label>Vurgu Rengi</label>
+            <input type="color" value={local.accentColor || '#3b82f6'} onChange={(e)=>handleChange('accentColor', e.target.value)} />
+            <Hint>Buton/ikon vurgularında kullanılacak ana renk</Hint>
+            <Divider />
+            <h4>İletişim Bilgileri</h4>
+            <label>Destek E‑posta</label>
+            <input type="email" value={local.contactEmail || ''} onChange={(e)=>handleChange('contactEmail', e.target.value)} />
+            <label>Destek Telefon</label>
+            <input type="tel" value={local.supportPhone || ''} onChange={(e)=>handleChange('supportPhone', e.target.value)} />
             <Divider />
             <label>
               <input type="checkbox" checked={!!local.showContactLink} onChange={(e)=>handleChange('showContactLink', e.target.checked)} /> İletişim linkini göster
             </label>
+            <label>Uygulama Dili</label>
+            <select value={local.locale || 'tr'} onChange={(e)=>handleChange('locale', e.target.value)}>
+              <option value="tr">Türkçe</option>
+              <option value="en">English</option>
+            </select>
+            <label>Tema</label>
+            <select value={local.theme || 'dark'} onChange={(e)=>handleChange('theme', e.target.value)}>
+              <option value="dark">Koyu</option>
+              <option value="light">Açık</option>
+              <option value="system">Sistem</option>
+            </select>
             <label>UI Yoğunluğu</label>
             <select value={local.uiDensity || 'comfortable'} onChange={(e)=>handleChange('uiDensity', e.target.value)}>
               <option value="comfortable">Rahat</option>
               <option value="compact">Kompakt</option>
             </select>
-            <Hint>Kompakt mod daha dar paddingle içerikleri sıkı gösterir</Hint>
+            <Divider />
+            <h4>Footer</h4>
+            <label><input type="checkbox" checked={local.footer?.shimmer !== false} onChange={(e)=>handleChange('footer.shimmer', e.target.checked)} /> Footer shimmer animasyonu</label>
             <Divider />
             <label>
               <input type="checkbox" checked={!!local.header?.hideOnScroll} onChange={(e)=>handleChange('header.hideOnScroll', e.target.checked)} /> Header kaydırmada gizlensin
             </label>
+          </div>
+
+          <div className="settings-card">
+            <h3>Ana Sayfa</h3>
+            <label>Hero Başlık</label>
+            <input type="text" value={local.home?.heroTitle || ''} onChange={(e)=>handleChange('home.heroTitle', e.target.value)} />
+            <label>Hero Alt Başlık</label>
+            <input type="text" value={local.home?.heroSubtitle || ''} onChange={(e)=>handleChange('home.heroSubtitle', e.target.value)} />
+          </div>
+
+          <div className="settings-card">
+            <h3>Profil & Link</h3>
+            <label><input type="checkbox" checked={local.profiles?.allowPublic !== false} onChange={(e)=>handleChange('profiles.allowPublic', e.target.checked)} /> Profiller herkese açık olabilir</label>
+            <label>Slug Ayırıcı</label>
+            <select value={local.profiles?.slugSeparator || '.'} onChange={(e)=>handleChange('profiles.slugSeparator', e.target.value)}>
+              <option value="," disabled>,</option>
+              <option value=".">.</option>
+              <option value="-">-</option>
+              <option value="_">_</option>
+            </select>
+            <Hint>Örnek: Ali Veli → Ali{local.profiles?.slugSeparator || '.'}Veli</Hint>
           </div>
 
           <div className="settings-card">
@@ -96,6 +145,7 @@ export default function SettingsTab({ settings, onSave }) {
               <option value="users">Kullanıcılar</option>
               <option value="surveys">Anketler</option>
               <option value="database">Database</option>
+              <option value="notify">Bildirim</option>
               <option value="settings">Ayarlar</option>
             </select>
             <label>Varsayılan Anket Alt Sekmesi</label>
@@ -112,9 +162,23 @@ export default function SettingsTab({ settings, onSave }) {
               <option value="categories">Kategoriler</option>
             </select>
             <Divider />
+            <h4>Üst Bar Butonları</h4>
+            <label><input type="checkbox" checked={local.headerControls?.search !== false} onChange={(e)=>handleChange('headerControls.search', e.target.checked)} /> Arama</label>
+            <label><input type="checkbox" checked={local.headerControls?.filter !== false} onChange={(e)=>handleChange('headerControls.filter', e.target.checked)} /> Filtre</label>
+            <label><input type="checkbox" checked={local.headerControls?.export !== false} onChange={(e)=>handleChange('headerControls.export', e.target.checked)} /> Dışa Aktar</label>
+            <label><input type="checkbox" checked={local.headerControls?.refresh !== false} onChange={(e)=>handleChange('headerControls.refresh', e.target.checked)} /> Yenile</label>
+            <Divider />
+            <label>Kenar Çubuğu Genişliği</label>
+            <select value={local.sidebarWidth || 'normal'} onChange={(e)=>handleChange('sidebarWidth', e.target.value)}>
+              <option value="normal">Normal</option>
+              <option value="wide">Geniş</option>
+            </select>
+            <Divider />
             <label>Otomatik Yenileme (saniye)</label>
             <input type="number" min="0" value={local.autoRefreshSec ?? 0} onChange={(e)=>handleChange('autoRefreshSec', Math.max(0, parseInt(e.target.value || '0', 10)))} />
-            <Hint>0 devre dışı bırakır</Hint>
+            <label>
+              <input type="checkbox" checked={!!local.showTooltips} onChange={(e)=>handleChange('showTooltips', e.target.checked)} /> İpuçlarını göster
+            </label>
           </div>
 
           <div className="settings-card">
@@ -148,7 +212,7 @@ export default function SettingsTab({ settings, onSave }) {
             <h3>Dışa Aktarma</h3>
             <label>Ayırıcı</label>
             <select value={local.export?.delimiter || ','} onChange={(e)=>handleChange('export.delimiter', e.target.value)}>
-              <option value=",">Virgül (,)</option>
+              <option value="," >Virgül (,)</option>
               <option value=";">Noktalı Virgül (;)</option>
               <option value="\t">Sekme (TAB)</option>
               <option value="|">Dikey Çizgi (|)</option>
@@ -158,6 +222,11 @@ export default function SettingsTab({ settings, onSave }) {
             </label>
             <label>Dosya adı öneki</label>
             <input type="text" value={local.export?.filenamePrefix || 'export'} onChange={(e)=>handleChange('export.filenamePrefix', e.target.value)} />
+            <label>Tarih formatı</label>
+            <select value={local.export?.dateFormat || 'iso'} onChange={(e)=>handleChange('export.dateFormat', e.target.value)}>
+              <option value="iso">ISO (YYYY-MM-DD)</option>
+              <option value="tr">TR (DD.MM.YYYY)</option>
+            </select>
           </div>
 
           <div className="settings-card">
@@ -166,6 +235,22 @@ export default function SettingsTab({ settings, onSave }) {
               <input type="checkbox" checked={!!local.confirmations?.delete} onChange={(e)=>handleChange('confirmations.delete', e.target.checked)} /> Silme işlemi için onay iste
             </label>
             <Divider />
+            <h4>Şifre Politikası</h4>
+            <label>
+              <input type="checkbox" checked={!!local.passwordPolicy?.enabled} onChange={(e)=>handleChange('passwordPolicy.enabled', e.target.checked)} /> Güçlü şifre politikasını etkinleştir
+            </label>
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, opacity: local.passwordPolicy?.enabled ? 1 : 0.6}}>
+              <label>
+                Minimum uzunluk
+                <input type="number" min="1" value={local.passwordPolicy?.minLength ?? 8} onChange={(e)=>handleChange('passwordPolicy.minLength', Math.max(1, parseInt(e.target.value||'8',10)))} />
+              </label>
+              <div>
+                <label><input type="checkbox" checked={!!local.passwordPolicy?.requireLower} onChange={(e)=>handleChange('passwordPolicy.requireLower', e.target.checked)} /> Küçük harf</label>
+                <label><input type="checkbox" checked={!!local.passwordPolicy?.requireUpper} onChange={(e)=>handleChange('passwordPolicy.requireUpper', e.target.checked)} /> Büyük harf</label>
+                <label><input type="checkbox" checked={!!local.passwordPolicy?.requireDigit} onChange={(e)=>handleChange('passwordPolicy.requireDigit', e.target.checked)} /> Rakam</label>
+              </div>
+            </div>
+            <Divider />
             <label>Yeni Anket Varsayılan Soru Sayısı</label>
             <input type="number" min="1" max="20" value={local.surveys?.defaultQuestionCount ?? 1} onChange={(e)=>handleChange('surveys.defaultQuestionCount', Math.min(20, Math.max(1, parseInt(e.target.value || '1', 10))))} />
             <label>
@@ -173,6 +258,9 @@ export default function SettingsTab({ settings, onSave }) {
             </label>
             <label>
               <input type="checkbox" checked={local.surveys?.showTopBars !== false} onChange={(e)=>handleChange('surveys.showTopBars', e.target.checked)} /> Anket alt sekmelerinde üst seçim barlarını göster
+            </label>
+            <label>
+              <input type="checkbox" checked={!!local.surveys?.lockListOnForm} onChange={(e)=>handleChange('surveys.lockListOnForm', e.target.checked)} /> Anket ekle/düzenle açıkken listeyi kilitle
             </label>
           </div>
 
@@ -189,6 +277,9 @@ export default function SettingsTab({ settings, onSave }) {
             </label>
             <label>Maksimum satır</label>
             <input type="number" min="10" max="500" value={local.analytics?.maxItems ?? 100} onChange={(e)=>handleChange('analytics.maxItems', Math.min(500, Math.max(10, parseInt(e.target.value || '100', 10))))} />
+            <label>
+              <input type="checkbox" checked={!!local.analytics?.includeImages} onChange={(e)=>handleChange('analytics.includeImages', e.target.checked)} /> Görselleri de göster
+            </label>
           </div>
         </div>
 

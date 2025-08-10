@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../services/firebaseConfig';
 import { collection, getDocs, updateDoc, doc, addDoc, deleteDoc } from 'firebase/firestore';
-import { Database, Users, FileText, Folder, RefreshCw, Search, Save, RotateCcw, Plus, Trash2 } from 'lucide-react';
+import { Database, Users, FileText, Folder, RefreshCw, Search, Save, RotateCcw, Plus, Trash2, MessageSquare } from 'lucide-react';
 import '../css/DatabaseTab.css';
 
 export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = null, settings = {}, externalSearch = '', refreshToken = 0 }) {
@@ -9,6 +9,7 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
   const [users, setUsers] = useState([]);
   const [surveys, setSurveys] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [feedback, setFeedback] = useState([]);
   const [search, setSearch] = useState('');
   const [buffers, setBuffers] = useState({});
   const [savingKey, setSavingKey] = useState('');
@@ -36,14 +37,16 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
   const loadAll = async () => {
     try {
       setLoading(true);
-      const [usersSnap, surveysSnap, categoriesSnap] = await Promise.all([
+      const [usersSnap, surveysSnap, categoriesSnap, feedbackSnap] = await Promise.all([
         getDocs(collection(db, 'users')),
         getDocs(collection(db, 'surveys')),
         getDocs(collection(db, 'categories')),
+        getDocs(collection(db, 'feedback')),
       ]);
       setUsers(usersSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setSurveys(surveysSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setCategories(categoriesSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setFeedback(feedbackSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       onNotify({ type: 'info', title: 'Database', message: 'Veriler yenilendi' });
     } catch (e) {
       console.error('DB yüklenemedi', e);
@@ -102,6 +105,7 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
       if (col === 'users') setUsers(prev => prev.map(r => r.id === item.id ? { id: item.id, ...data } : r));
       if (col === 'surveys') setSurveys(prev => prev.map(r => r.id === item.id ? { id: item.id, ...data } : r));
       if (col === 'categories') setCategories(prev => prev.map(r => r.id === item.id ? { id: item.id, ...data } : r));
+      if (col === 'feedback') setFeedback(prev => prev.map(r => r.id === item.id ? { id: item.id, ...data } : r));
       onBufferChange(key, JSON.stringify({ id: item.id, ...data }, null, 2));
       showToast('Kaydedildi', 'success');
       onNotify({ type: 'success', title: 'Kaydetme', message: `${col} koleksiyonunda kayıt güncellendi` });
@@ -122,6 +126,7 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
       if (col === 'users') setUsers(prev => prev.filter(r => r.id !== item.id));
       if (col === 'surveys') setSurveys(prev => prev.filter(r => r.id !== item.id));
       if (col === 'categories') setCategories(prev => prev.filter(r => r.id !== item.id));
+      if (col === 'feedback') setFeedback(prev => prev.filter(r => r.id !== item.id));
       const k = keyOf(col, item.id);
       setBuffers(prev => { const cp = { ...prev }; delete cp[k]; return cp; });
       showToast('Silindi', 'success');
@@ -172,6 +177,8 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
         return { title:'', description:'', category:'', questionCount:1, questions:[{ id:1, question:'', options:['',''], optionPoints:[0,0]}], results:[], active:true, createdAt: new Date().toISOString() };
       case 'categories':
         return { name:'' };
+      case 'feedback':
+        return { name:'', email:'', subject:'', message:'', rating:0, userId:null, status:'new', createdAt: new Date().toISOString() };
       default:
         return {};
     }
@@ -191,6 +198,7 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
       if (addCol === 'users') setUsers(prev => [newItem, ...prev]);
       if (addCol === 'surveys') setSurveys(prev => [newItem, ...prev]);
       if (addCol === 'categories') setCategories(prev => [newItem, ...prev]);
+      if (addCol === 'feedback') setFeedback(prev => [newItem, ...prev]);
       closeAdd();
       showToast('Eklendi', 'success');
       onNotify({ type: 'success', title: 'Ekleme', message: `${addCol} koleksiyonuna yeni kayıt eklendi` });
@@ -287,6 +295,9 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
         <button className={`db-tab ${activeTab==='categories' ? 'active' : ''}`} onClick={()=>setActiveTab('categories')}>
           <Folder size={16}/> Kategoriler
         </button>
+        <button className={`db-tab ${activeTab==='feedback' ? 'active' : ''}`} onClick={()=>setActiveTab('feedback')}>
+          <MessageSquare size={16}/> Geri Bildirim
+        </button>
       </div>
 
 
@@ -316,6 +327,14 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
               subtitle="Toplam: {count}"
               icon={<Folder size={18}/>} grid />
           )}
+          {activeTab === 'feedback' && (
+            <Section
+              col="feedback"
+              rows={feedback}
+              title="Geri Bildirim"
+              subtitle="Toplam: {count}"
+              icon={<MessageSquare size={18}/>} />
+          )}
         </div>
       )}
 
@@ -328,6 +347,7 @@ export default function DatabaseTab({ onNotify = () => {}, defaultActiveTab = nu
                 {viewCol === 'users' && (viewItem.name || 'Üye Detayı')}
                 {viewCol === 'surveys' && (viewItem.title || 'Anket Detayı')}
                 {viewCol === 'categories' && (viewItem.name || 'Kategori Detayı')}
+                {viewCol === 'feedback' && (viewItem.subject || 'Geri Bildirim Detayı')}
               </div>
               <button className="btn-secondary" onClick={closeView}>Kapat</button>
             </div>

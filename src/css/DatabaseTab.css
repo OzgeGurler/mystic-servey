@@ -104,3 +104,16 @@
 .db-tab { background: #151922; color: #c9d1d9; border: 1px solid #222838; border-radius: 10px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
 .db-tab:hover { background: #1a2030; color: #fff; }
 .db-tab.active { background: #3b82f6; border-color: #3b82f6; color: #fff; } 
+
+/* Light theme support */
+.dashboard.theme-light .db-card { background: #ffffff; border-color: #e5e7eb; }
+.dashboard.theme-light .db-card__header { border-color: #e5e7eb; }
+.dashboard.theme-light .db-title__main { color: #111827; }
+.dashboard.theme-light .db-title__sub { color: #6b7280; }
+.dashboard.theme-light .db-item { background:#ffffff; border-color:#e5e7eb; }
+.dashboard.theme-light .db-item__summary { color:#111827; }
+.dashboard.theme-light .db-summary-muted { color:#6b7280; }
+.dashboard.theme-light .db-json, .dashboard.theme-light .db-modal__textarea { background:#ffffff; border-color:#e5e7eb; color:#111827; }
+.dashboard.theme-light .btn-secondary { background:#ffffff; color:#374151; border-color:#e5e7eb; }
+.dashboard.theme-light .db-tab { background:#ffffff; color:#374151; border-color:#e5e7eb; }
+.dashboard.theme-light .db-tab.active { background:#3b82f6; color:#fff; border-color:#3b82f6; } 

@@ -13,6 +13,7 @@ export default function SolveSurvey() {
     const [result, setResult] = useState(null);
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     const handleStartClick = (starValue) => {
         setRating(starValue);
@@ -76,6 +77,9 @@ export default function SolveSurvey() {
             [questionIndex]: optionIndex
         }));
     };
+
+    const goPrev = () => setCurrentIndex((i) => Math.max(0, i - 1));
+    const goNext = () => setCurrentIndex((i) => Math.min((survey?.questions?.length || 1) - 1, i + 1));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -143,88 +147,63 @@ export default function SolveSurvey() {
         }
     };
 
-    if (!survey) {
-        return <div className="solve-survey-container">Anket yükleniyor...</div>;
-    }
+    if (!survey) return <div className="solve-survey-bg">Anket yükleniyor...</div>;
 
     if (result) {
         return (
-            <>
-            <div className="result-container">
-                <h2>Sonuç</h2>
-                {result.imageUrl && (
-                  <div className="result-image">
-                    <img src={result.imageUrl} alt="Sonuç Görseli" />
-                  </div>
-                )}
-                <p><strong>Puanınız:</strong> {result.totalPoints}</p>
-                <p>{result.message}</p>
-            </div>
-                <div className="result-rating">
-                <h2> Anketi Puanla </h2>
-                    <div className="rating-container">
-                    {[1, 2, 3, 4, 5].map((starValue) => (
-                    <Star 
-                    key={starValue}
-                    size={40}
-                    className="result-stars"
-                    onClick={() => handleStartClick(starValue)}
-                    onMouseEnter={() => handleStarHover(starValue)}
-                    onMouseLeave={handleMouseLeave}
-                    />
-                    ))}
-                    </div>
-
-                    <div className="rating-text">
-                        {rating > 0 && (
-                            <p className="rating-results">
-                                Puanınız <span className="font-bold text-blue-600">{rating} / 5</span>
-                            </p>
-                        )}
-
-                        {rating > 0 && (
-                            <button 
-                            className="rating-button"
-                            onClick={handleStarSubmit}
-                            >
-                            </button>
-                        )}
-                    </div>
+            <div className="solve-survey-bg">
+                <div className="result-card">
+                    <h2>Sonuç</h2>
+                    {result.imageUrl && (
+                        <div className="result-image"><img src={result.imageUrl} alt="Sonuç Görseli" /></div>
+                    )}
+                    <p><strong>Puanınız:</strong> {result.totalPoints}</p>
+                    <p>{result.message}</p>
                 </div>
-                </>
+                <div className="result-rating">
+                    <h3>Anketi Puanla</h3>
+                    <div className="rating-container">
+                        {[1, 2, 3, 4, 5].map((starValue) => (
+                            <Star key={starValue} size={36} className="result-stars" onClick={() => handleStartClick(starValue)} onMouseEnter={() => handleStarHover(starValue)} onMouseLeave={handleMouseLeave} />
+                        ))}
+                    </div>
+                    {rating > 0 && (
+                        <button className="rating-button" onClick={handleStarSubmit}>Gönder</button>
+                    )}
+                </div>
+            </div>
         );
     }
 
+    const q = survey.questions[currentIndex];
+    const progress = `${currentIndex + 1} / ${survey.questions.length}`;
     return (
-        <div className="solve-survey-container">
-            <h2>{survey.title}</h2>
-            {survey.coverImage && (
-              <div className="cover-image">
-                <img src={survey.coverImage} alt={survey.title} />
-              </div>
-            )}
-            <form onSubmit={handleSubmit}>
-                {survey.questions.map((q, qIndex) => (
-                    <div className="question-block" key={qIndex}>
-                        <h3>{qIndex + 1}. {q.question}</h3>
-                        {q.imageUrl && (
-                          <div className="question-image"><img src={q.imageUrl} alt={`Soru ${qIndex+1}`} /></div>
-                        )}
-                        {q.options.map((option, oIndex) => (
-                            <label key={oIndex} className="option-label">
-                                <input
-                                    type="radio"
-                                    name={`question-${qIndex}`}
-                                    checked={answers[qIndex] === oIndex}
-                                    onChange={() => handleAnswerChange(qIndex, oIndex)}
-                                />
+        <div className="solve-survey-bg">
+            <div className="solve-card">
+                <h1 className="solve-title">{survey.title}</h1>
+                <p className="solve-sub">Aşağıdaki soruları yanıtlayarak sonucu keşfedin</p>
+                <div className="solve-progress"><span>{`Soru ${progress}`}</span><div className="bar"><div className="bar-fill" style={{width: `${((currentIndex+1)/survey.questions.length)*100}%`}}/></div></div>
+                <div className="solve-inner">
+                    <h3 className="solve-question">{q?.question}</h3>
+                    {q?.imageUrl && <img className="solve-qimage" src={q.imageUrl} alt={`Soru ${currentIndex+1}`} />}
+                    <div className="solve-options">
+                        {q?.options?.map((option, idx) => (
+                            <label key={idx} className={`solve-option ${answers[currentIndex]===idx?'selected':''}`}>
+                                <input type="radio" name={`q-${currentIndex}`} checked={answers[currentIndex]===idx} onChange={() => handleAnswerChange(currentIndex, idx)} />
                                 {option}
                             </label>
                         ))}
                     </div>
-                ))}
-                <button type="submit" className="submit-btn">Gönder</button>
-            </form>
+                    <div className="solve-actions">
+                        <button type="button" className="btn-ghost" onClick={goPrev} disabled={currentIndex===0}>Önceki</button>
+                        {currentIndex < survey.questions.length - 1 ? (
+                            <button type="button" className="btn-primary" onClick={goNext}>Sonraki</button>
+                        ) : (
+                            <button type="button" className="btn-primary" onClick={handleSubmit}>Bitir</button>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

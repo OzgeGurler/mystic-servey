@@ -24,6 +24,7 @@ function App() {
         } />
         <Route path="/surveys/:id/solve" element={<SolveSurvey />} />
         <Route path="/profil" element={<Profil />} />
+        <Route path="/profil/:slug" element={<Profil />} />
         <Route path="/ayarlar" element={<Ayarlar />} />
         <Route path="/admingiris" element={<AdminGiris />} />
         <Route path="/iletisim" element={<IletisimPage />} />

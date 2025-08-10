@@ -12,7 +12,9 @@ import {
   Database as DbIcon,
   Sun,
   User,
-  X
+  X,
+  MessageSquare,
+  ClipboardList
 } from 'lucide-react';
 import '../css/AdminPage.css';
 import UsersTab from "./UsersTab";
@@ -23,7 +25,9 @@ import SettingsTab from "./SettingsTab";
 import AnalyticsTab from "./AnalyticsTab";
 import UserService from "../services/userService";
 import { db } from "../services/firebaseConfig";
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { listFeedback } from '../services/feedbackService.js';
+import { addNotification } from '../services/notificationService.js';
 
 const DEFAULT_SETTINGS = {
   siteTitle: 'Mystic Survey',
@@ -38,7 +42,17 @@ const DEFAULT_SETTINGS = {
   confirmations: { delete: true },
   surveys: { defaultQuestionCount: 1, defaultActive: true, showTopBars: true },
   header: { hideOnScroll: true },
-  analytics: { showAnswers: true, showResults: true, showUserEmails: true, maxItems: 100 }
+  analytics: { showAnswers: true, showResults: true, showUserEmails: true, maxItems: 100 },
+  passwordPolicy: { enabled: false, minLength: 8, requireLower: true, requireUpper: true, requireDigit: true },
+  theme: 'dark',
+  headerControls: { search: true, filter: true, export: true, refresh: true },
+  sidebarWidth: 'normal',
+  accentColor: '#3b82f6',
+  footer: { shimmer: true },
+  contactEmail: 'destek@mysticsurvey.com',
+  supportPhone: '',
+  home: { heroTitle: 'Mystic Survey', heroSubtitle: 'Modern anket deneyimi' },
+  profiles: { allowPublic: true, slugSeparator: '.' }
 };
 
 const loadSettings = () => {
@@ -57,7 +71,36 @@ const AdminPage = () => {
   const [roleFilter, setRoleFilter] = useState("all");
   const [refreshToken, setRefreshToken] = useState(0);
   const [surveysSubTab, setSurveysSubTab] = useState(loadSettings().surveysDefaultSubTab || 'list');
+  const [showProfile, setShowProfile] = useState(false);
+  const [profile, setProfile] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('adminProfile')) || { name: 'Admin', email: 'admin@example.com', phone: '' }; }
+    catch { return { name: 'Admin', email: 'admin@example.com', phone: '' }; }
+  });
 
+  const [systemPrefersLight, setSystemPrefersLight] = useState(() => window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+  const [feedback, setFeedback] = useState([]);
+
+
+  useEffect(() => {
+    const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+    if (!mq) return;
+    const handler = (e) => setSystemPrefersLight(e.matches);
+    mq.addEventListener ? mq.addEventListener('change', handler) : mq.addListener(handler);
+    return () => { mq.removeEventListener ? mq.removeEventListener('change', handler) : mq.removeListener(handler); };
+  }, []);
+
+
+  const effectiveTheme = useMemo(() => {
+    const t = settings.theme || 'dark';
+    if (t === 'system') return systemPrefersLight ? 'light' : 'dark';
+    return t;
+  }, [settings.theme, systemPrefersLight]);
+ 
+  useEffect(() => {
+    if (activeTab === 'feedback') {
+      (async () => { try { setFeedback(await listFeedback()); } catch (e) { console.error('Feedback yüklenemedi', e); } })();
+    }
+  }, [activeTab, refreshToken]);
 
   useEffect(() => {
     const onStorage = (e) => { if (e.key === 'appSettings') setSettings(loadSettings()); };
@@ -233,6 +276,32 @@ const AdminPage = () => {
     notify('database', { type: 'success', title: 'Ayarlar', message: 'Ayarlar kaydedildi' });
   };
 
+  const applyPreviewSettings = (next) => {
+
+    setSettings(next);
+  };
+
+  const toggleTheme = () => {
+    const next = settings.theme === 'light' ? 'dark' : 'light';
+    handleSaveSettings({ theme: next });
+    notify('database', { type: 'info', title: 'Tema', message: `Tema ${next === 'light' ? 'Açık' : 'Koyu'} olarak ayarlandı` });
+  };
+
+  const saveProfile = async () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || 'null');
+      if (stored?.id) {
+        await updateDoc(doc(db, 'users', stored.id), { name: profile.name, email: profile.email, phone: profile.phone || '' });
+
+        const updated = { ...stored, name: profile.name, email: profile.email };
+        localStorage.setItem('userInfo', JSON.stringify(updated));
+      }
+    } catch { /* ignore */ }
+    localStorage.setItem('adminProfile', JSON.stringify(profile));
+    setShowProfile(false);
+    notify('users', { type: 'success', title: 'Profil', message: 'Profil güncellendi' });
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
@@ -268,7 +337,35 @@ const AdminPage = () => {
         );
       case "settings":
         return (
-          <SettingsTab settings={settings} onSave={handleSaveSettings} />
+          <SettingsTab settings={settings} onSave={handleSaveSettings} onLiveChange={applyPreviewSettings} />
+        );
+      case "notify":
+        return (
+          <div className="tab-content">
+            <div className="users-header" style={{paddingLeft:0,paddingRight:0, marginBottom:16}}>
+              <div className="header-left"><div><h2>Bildirim Gönder</h2><p>Kullanıcılara bildirim iletin</p></div></div>
+            </div>
+            <NotifyForm />
+          </div>
+        );
+      case "feedback":
+        return (
+          <div className="tab-content">
+            <div className="users-header" style={{paddingLeft:0,paddingRight:0, marginBottom:16}}>
+              <div className="header-left"><div><h2>Geri Bildirimler</h2><p>Kullanıcıların ilettiği mesajlar</p></div></div>
+            </div>
+            <div className="table" style={{display:'grid', gap:8}}>
+              {feedback.map(f => (
+                <div key={f.id} className="row" style={{display:'grid', gridTemplateColumns:'1fr 2fr 3fr 100px', gap:12, alignItems:'center', background:'rgba(16,24,40,0.35)', border:'1px solid rgba(148,163,184,0.18)', borderRadius:12, padding:12}}>
+                  <div style={{color:'#e2e8f0'}}>{f.name || 'Anonim'}<div style={{color:'#94a3b8', fontSize:12}}>{f.email || '-'}</div></div>
+                  <div style={{color:'#cbd5e1'}}>{f.subject || '-'}</div>
+                  <div style={{color:'#94a3b8'}}>{f.message}</div>
+                  <div style={{textAlign:'right', color:'#fbbf24', fontWeight:700}}>{f.rating ? `${f.rating}/5` : '-'}</div>
+                </div>
+              ))}
+              {feedback.length===0 && <div style={{color:'#94a3b8'}}>Henüz geri bildirim bulunmuyor</div>}
+            </div>
+          </div>
         );
       default:
         return null;
@@ -276,9 +373,9 @@ const AdminPage = () => {
   };
 
   return (
-    <div className={`dashboard ${settings.uiDensity === 'compact' ? 'density-compact' : ''}`}>
+    <div className={`dashboard ${settings.uiDensity === 'compact' ? 'density-compact' : ''} ${effectiveTheme === 'light' ? 'theme-light' : ''}`}>
 
-      <div className="sidebar">
+      <div className={`sidebar ${settings.sidebarWidth === 'wide' ? 'sidebar-wide' : ''}`}>
         <div className="sidebar-header">
           <div className="logo">
             <div className="logo-icon">TC</div>
@@ -312,6 +409,14 @@ const AdminPage = () => {
               <DbIcon size={18} />
               <span>Database</span>
             </button>
+            <button onClick={() => handleTabClick("notify")} className={`nav-item ${activeTab==='notify' ? 'active' : ''}`}>
+              <Bell size={18} />
+              <span>Bildirim</span>
+            </button>
+            <button onClick={() => handleTabClick("feedback")} className={`nav-item ${activeTab==='feedback' ? 'active' : ''}`}>
+              <MessageSquare size={18} />
+              <span>Geri Bildirim</span>
+            </button>
             <button onClick={() => handleTabClick("settings")} className={`nav-item ${activeTab==='settings' ? 'active' : ''}`}>
               <Settings size={18} />
               <span>Ayarlar</span>
@@ -320,14 +425,29 @@ const AdminPage = () => {
         </div>
 
         <div className="sidebar-footer">
-          <a href="#" className="nav-item">
+          <button className="nav-item" onClick={toggleTheme}>
             <Sun size={18} />
-            <span>Light Mode</span>
-          </a>
-          <a href="#" className="nav-item">
+            <span>{effectiveTheme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+          </button>
+          <button className="nav-item" onClick={async () => {
+            // Load current admin from storage and Firestore
+            try {
+              const stored = JSON.parse(localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || 'null');
+              if (stored?.id) {
+                const snap = await getDoc(doc(db, 'users', stored.id));
+                if (snap.exists()) {
+                  const u = snap.data();
+                  setProfile({ name: u.name || stored.name || 'Admin', email: u.email || stored.email || '', phone: u.phone || '' });
+                } else {
+                  setProfile({ name: stored.name || 'Admin', email: stored.email || '', phone: '' });
+                }
+              }
+            } catch { /* ignore */ }
+            setShowProfile(true);
+          }}>
             <User size={18} />
             <span>Admin Profile</span>
-          </a>
+          </button>
         </div>
       </div>
 
@@ -340,34 +460,42 @@ const AdminPage = () => {
             <span className="breadcrumb">Home</span>
           </div>
           <div className="header-right">
+            {settings.headerControls?.search !== false && (
             <div className="search-container">
               <Search size={16} />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  className="search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
             </div>
-            <button className="header-btn" onClick={() => setShowFilterPanel(prev => !prev)}>
+            )}
+            {settings.headerControls?.filter !== false && (
+              <button className="header-btn" onClick={() => setShowFilterPanel(prev => !prev)}>
               <Filter size={16} />
               Filter
             </button>
-            <button className="header-btn" onClick={handleExport}>
+            )}
+            {settings.headerControls?.export !== false && (
+              <button className="header-btn" onClick={handleExport}>
               <Download size={16} />
               Export
             </button>
-            <button className="header-btn" onClick={handleRefresh}>
+            )}
+            {settings.headerControls?.refresh !== false && (
+              <button className="header-btn" onClick={handleRefresh}>
               <RefreshCw size={16} />
               Refresh
             </button>
-
+            )}
+            
             <div className="notif-container">
               <button className="notification-btn" title="Notifications" onClick={() => { setShowNotif(v => { const nv = !v; if (!v) setUnreadCount(0); return nv; }); }}>
-                <Bell size={16} />
+              <Bell size={16} />
                 {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
-              </button>
+            </button>
               {showNotif && (
                 <div className="notif-panel" onClick={(e)=>e.stopPropagation()}>
                   <div className="notif-header">
@@ -431,8 +559,106 @@ const AdminPage = () => {
         <div className="dashboard-content" onClick={() => setShowNotif(false)}>
           {renderContent()}
         </div>
+        {showProfile && (
+          <div className="profile-overlay" onClick={() => setShowProfile(false)}>
+            <div className="profile-modal" onClick={(e)=>e.stopPropagation()}>
+              <div className="profile-header">
+                <h3>Admin Profili</h3>
+                <button className="profile-close" onClick={()=>setShowProfile(false)}>×</button>
+              </div>
+              <div className="profile-body">
+                <label>Ad Soyad</label>
+                <input type="text" value={profile.name} onChange={(e)=>setProfile(p=>({...p, name: e.target.value}))} />
+                <label>Email</label>
+                <input type="email" value={profile.email} onChange={(e)=>setProfile(p=>({...p, email: e.target.value}))} />
+                <label>Telefon</label>
+                <input type="tel" value={profile.phone || ''} onChange={(e)=>setProfile(p=>({...p, phone: e.target.value}))} />
+              </div>
+              <div className="modal-actions" style={{justifyContent:'flex-end'}}>
+                <button className="btn-secondary" onClick={()=>setShowProfile(false)}>İptal</button>
+                <button className="btn-primary" onClick={saveProfile}>Kaydet</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
+  );
+};
+
+const NotifyForm = () => {
+  const [target, setTarget] = React.useState('all');
+  const [userIds, setUserIds] = React.useState([]);
+  const [type, setType] = React.useState('info');
+  const [title, setTitle] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [sending, setSending] = React.useState(false);
+  const [users, setUsers] = React.useState([]);
+
+  React.useEffect(() => { (async ()=>{
+    try { const snap = await getDocs(collection(db,'users')); setUsers(snap.docs.map(d=>({id:d.id, ...d.data()}))); } catch {}
+  })(); }, []);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!title.trim() || !message.trim()) return;
+    setSending(true);
+    try {
+      if (target === 'all') {
+        await addNotification({ target: 'all', type, title, message });
+      } else {
+        if (!userIds.length) { alert('En az bir kullanıcı seçin'); setSending(false); return; }
+        await Promise.all(userIds.map(id => addNotification({ target: id, type, title, message })));
+      }
+      setTitle(''); setMessage('');
+      alert('Bildirim gönderildi');
+    } catch (e) {
+      console.error('Bildirim gönderilemedi', e);
+      alert('Bildirim gönderilemedi');
+    } finally { setSending(false); }
+  };
+
+  return (
+    <form onSubmit={submit} className="settings-form" style={{maxWidth:720}}>
+      <div className="form-group">
+        <label>Hedef</label>
+        <div style={{display:'grid', gridTemplateColumns:'1fr 2fr', gap:8}}>
+          <select value={target} onChange={(e)=>setTarget(e.target.value)}>
+            <option value="all">Tüm Kullanıcılar</option>
+            <option value="users">Belirli Kullanıcılar</option>
+          </select>
+          {target==='users' && (
+            <select multiple value={userIds} onChange={(e)=>{
+              const values = Array.from(e.target.selectedOptions).map(o=>o.value);
+              setUserIds(values);
+            }} size={8}>
+              {users.map(u => (<option key={u.id} value={u.id}>{u.name || u.email} ({u.id.slice(0,6)})</option>))}
+            </select>
+          )}
+        </div>
+        {target==='users' && <small style={{color:'#9ca3af'}}>İpucu: Çoklu seçim için Ctrl/Cmd veya Shift kullanın.</small>}
+      </div>
+      <div className="form-group">
+        <label>Tür</label>
+        <select value={type} onChange={(e)=>setType(e.target.value)}>
+          <option value="info">Bilgi</option>
+          <option value="success">Başarı</option>
+          <option value="warning">Uyarı</option>
+          <option value="error">Hata</option>
+        </select>
+      </div>
+      <div className="form-group">
+        <label>Başlık</label>
+        <input type="text" value={title} onChange={(e)=>setTitle(e.target.value)} placeholder="Başlık" />
+      </div>
+      <div className="form-group">
+        <label>Mesaj</label>
+        <textarea value={message} onChange={(e)=>setMessage(e.target.value)} rows={4} placeholder="Mesaj"></textarea>
+      </div>
+      <div className="modal-actions" style={{justifyContent:'flex-end'}}>
+        <button type="submit" className="btn-primary" disabled={sending}>{sending ? 'Gönderiliyor...' : 'Gönder'}</button>
+      </div>
+    </form>
   );
 };
 

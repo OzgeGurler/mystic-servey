@@ -19,13 +19,14 @@ const getAllUsers = async () => {
 
 // Yeni kullanıcı ekle
 const addUser = async (userData) => {
-  await addDoc(usersCollection, {
+  const docRef = await addDoc(usersCollection, {
     ...userData,
     isActive: true,
     createdAt: serverTimestamp(),
     completesurvey: 0,
     completedSurvey: []
   });
+  return docRef.id;
 };
 
 // Kullanıcıyı güncelle
@@ -64,6 +65,15 @@ const getUserStats = async () => {
   return { total, active, inactive };
 };
 
+// Kullanıcı adı slug üret
+const nameToSlug = (name) => (name || '').trim().replace(/\s+/g, '.');
+
+// Kullanıcıyı slug ile bul (client tarafında tüm kullanıcılar çekiliyorsa burada opsiyonel)
+const findUserBySlug = async (slug) => {
+  const users = await getAllUsers();
+  return users.find(u => nameToSlug(u.name) === slug) || null;
+};
+
 export default {
   getAllUsers,
   addUser,
@@ -71,4 +81,6 @@ export default {
   deleteUser,
   toggleUserStatus,
   getUserStats,
+  nameToSlug,
+  findUserBySlug,
 };

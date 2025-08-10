@@ -30,12 +30,21 @@ function RegisterPopUp({ isOpen, onClose, onLoginClick }) {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  const getSettings = () => {
+    try { return JSON.parse(localStorage.getItem('appSettings')) || {}; }
+    catch { return {}; }
+  };
+
   const validatePassword = (password) => {
     const errors = [];
-    if (password.length < 8) errors.push('En az 8 karakter');
-    //if (!/(?=.*[a-z])/.test(password)) errors.push('En az bir küçük harf');       //
-    //if (!/(?=.*[A-Z])/.test(password)) errors.push('En az bir büyük harf');           Bunları isteğine göre aktif et.
-    // if (!/(?=.*\d)/.test(password)) errors.push('En az bir rakam');                      //
+    if (!password) { errors.push('Şifre gereklidir'); return errors; }
+    const policy = getSettings().passwordPolicy || { enabled: false };
+    if (!policy.enabled) return errors;
+    const min = policy.minLength ?? 8;
+    if (password.length < min) errors.push(`En az ${min} karakter`);
+    if (policy.requireLower && !/[a-z]/.test(password)) errors.push('en az bir küçük harf');
+    if (policy.requireUpper && !/[A-Z]/.test(password)) errors.push('en az bir büyük harf');
+    if (policy.requireDigit && !/\d/.test(password)) errors.push('en az bir rakam');
     return errors;
   };
 
@@ -46,10 +55,6 @@ function RegisterPopUp({ isOpen, onClose, onLoginClick }) {
     if (!formData.email.trim()) newErrors.email = 'E-posta gereklidir';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Geçerli bir e-posta adresi girin';
     if (!formData.password) newErrors.password = 'Şifre gereklidir';
-    else {
-      const pwErrors = validatePassword(formData.password);
-      if (pwErrors.length > 0) newErrors.password = `Şifre şu gereksinimleri karşılamalıdır: ${pwErrors.join(', ')}`;
-    }
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Şifre tekrarı gereklidir';
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Şifreler eşleşmiyor';
     setErrors(newErrors);

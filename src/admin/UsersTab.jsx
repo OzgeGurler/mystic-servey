@@ -91,22 +91,28 @@ const UsersTab = ({ externalSearch = '', externalFilters = { onlyActive: false, 
     };
 
     const validatePassword = (password) => {
-        if (password.length < 8) {
-            return 'Şifre en az 8 karakter olmalıdır';
-        }
-        if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-            return 'Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir';
-        }
+        const policy = settings?.passwordPolicy || { enabled: false };
+        if (!policy.enabled) return null;
+        const min = policy.minLength ?? 8;
+        if ((password || '').length < min) return `Şifre en az ${min} karakter olmalı`;
+        if (policy.requireLower && !/[a-z]/.test(password)) return 'En az bir küçük harf içermeli';
+        if (policy.requireUpper && !/[A-Z]/.test(password)) return 'En az bir büyük harf içermeli';
+        if (policy.requireDigit && !/\d/.test(password)) return 'En az bir rakam içermeli';
         return null;
     };
 
     const handleAddUser = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         try {
             if (!formData.name || !formData.email || !formData.password) {
                 onNotify({ type: 'error', title: 'Kullanıcı Ekle', message: 'Ad, email ve şifre zorunludur' });
                 return;
             }
+
+            const name = formData.name.trim();
+            const email = formData.email.trim().toLowerCase();
+            const phone = formData.phone.trim();
+            const role = formData.role || 'user';
 
             const passwordError = validatePassword(formData.password);
             if (passwordError) {
@@ -119,20 +125,18 @@ const UsersTab = ({ externalSearch = '', externalFilters = { onlyActive: false, 
                 return;
             }
 
-            const userData = {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                role: formData.role,
-                password: formData.password,
-            };
+            const userData = { name, email, phone, role, password: formData.password };
 
-            await UserService.addUser(userData);
+            const newId = await UserService.addUser(userData);
+            // Optimistic local update
+            setUsers(prev => [{ id: newId, name, email, phone, role, isActive: true, createdAt: new Date() }, ...prev]);
+            setStats(prev => ({ ...prev, total: prev.total + 1, active: prev.active + 1 }));
             setShowAddModal(false);
             setFormData({ name: '', email: '', phone: '', role: 'user', password: '', confirmPassword: '' });
+            onNotify({ type: 'success', title: 'Kullanıcı Ekle', message: 'Kullanıcı eklendi' });
+            // Sync with server data
             fetchUsers();
             fetchStats();
-            onNotify({ type: 'success', title: 'Kullanıcı Ekle', message: 'Kullanıcı eklendi' });
         } catch (error) {
             console.error('Kullanıcı eklenirken hata:', error);
             onNotify({ type: 'error', title: 'Kullanıcı Ekle', message: 'Kullanıcı eklenemedi' });
@@ -140,7 +144,7 @@ const UsersTab = ({ externalSearch = '', externalFilters = { onlyActive: false, 
     };
 
     const handleEditUser = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         try {
             if (!selectedUser) return;
 
@@ -191,13 +195,13 @@ const UsersTab = ({ externalSearch = '', externalFilters = { onlyActive: false, 
         if (needConfirm && !window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
             return;
         }
-        try {
-            await UserService.deleteUser(userId);
-            fetchUsers();
-            fetchStats();
+            try {
+                await UserService.deleteUser(userId);
+                fetchUsers();
+                fetchStats();
             onNotify({ type: 'success', title: 'Kullanıcı Sil', message: 'Kullanıcı silindi' });
-        } catch (error) {
-            console.error('Kullanıcı silinirken hata:', error);
+            } catch (error) {
+                console.error('Kullanıcı silinirken hata:', error);
             onNotify({ type: 'error', title: 'Kullanıcı Sil', message: 'Silme başarısız' });
         }
     };
@@ -489,7 +493,7 @@ const UsersTab = ({ externalSearch = '', externalFilters = { onlyActive: false, 
                                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                         </button>
                                     </div>
-                                    <small>En az 8 karakter, bir büyük, bir küçük harf ve bir rakam içermelidir</small>
+                                    <small>Şifrenizi belirleyin</small>
                                 </div>
                                 <div className="form-group">
                                     <label>Şifre (Tekrar)</label>
@@ -512,7 +516,7 @@ const UsersTab = ({ externalSearch = '', externalFilters = { onlyActive: false, 
                             </div>
                             <div className="modal-actions">
                                 <button type="button" className="btn-secondary" onClick={closeModals}>İptal</button>
-                                <button type="submit" className="btn-primary">
+                                <button type="button" className="btn-primary" onClick={handleAddUser}>
                                     <Save size={16} /> Kaydet
                                 </button>
                             </div>
@@ -591,7 +595,7 @@ const UsersTab = ({ externalSearch = '', externalFilters = { onlyActive: false, 
                             </div>
                             <div className="modal-actions">
                                 <button type="button" className="btn-secondary" onClick={closeModals}>İptal</button>
-                                <button type="submit" className="btn-primary">
+                                <button type="button" className="btn-primary" onClick={handleEditUser}>
                                     <Save size={16} /> Kaydet
                                 </button>
                             </div>

@@ -926,3 +926,20 @@
 /* Ensure select in edit-select-bar matches */
 .edit-select-bar select { min-height: 38px; }
 
+/* Light theme overrides for SurveysTab */
+.dashboard.theme-light .tab-content h2 { color:#111827; }
+.dashboard.theme-light .filter-container { background:#ffffff; border:1px solid #e5e7eb; }
+.dashboard.theme-light .filter-container label { color:#374151; }
+.dashboard.theme-light .filter-container select { background:#ffffff; color:#111827; border-color:#e5e7eb; }
+.dashboard.theme-light .surveys-table { background:#ffffff; border-color:#e5e7eb; }
+.dashboard.theme-light .surveys-table th { background:#f9fafb; color:#374151; }
+.dashboard.theme-light .surveys-table td { color:#111827; border-color:#e5e7eb; }
+.dashboard.theme-light .surveys-table tr:hover { background:#f9fafb; }
+.dashboard.theme-light .modal-content { background:#ffffff; border-color:#e5e7eb; color:#111827; }
+.dashboard.theme-light .modal-header { border-color:#e5e7eb; }
+.dashboard.theme-light .modal-form label { color:#374151; }
+.dashboard.theme-light .modal-form input, .dashboard.theme-light .modal-form select { background:#ffffff; color:#111827; border-color:#e5e7eb; }
+.dashboard.theme-light .edit-select-bar { background:#ffffff; border-color:#e5e7eb; }
+.dashboard.theme-light .edit-select-bar label { color:#374151; }
+.dashboard.theme-light .edit-select-bar select { background:#ffffff; border-color:#e5e7eb; color:#111827; }
+

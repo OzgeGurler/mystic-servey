@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, Clock, Users, Star, TrendingUp, Award, ChevronRight } from 'lucide-react';
+import { Search, Filter, Clock, Users, Star, TrendingUp, Award, ChevronRight, Tag, MessageSquare, Heart, Crown, Play } from 'lucide-react';
 import Header from "../components/Header";
 import Footer from '../components/Footer';
 import '../css/Anketler.css';
@@ -170,42 +170,65 @@ function AnketPage () {
                     <div className="survey-grid">
                         {sortedSurveys.map((survey) => (
                             <div
-                            key={survey.id}
-                            className="survey-card"
-                            onClick={() => handleParticipantSubmit(survey.id)}
-                            style={{ cursor: "pointer" }}
+                                key={survey.id}
+                                className="survey-card"
+                                onClick={() => handleParticipantSubmit(survey.id)}
+                                style={{ cursor: "pointer" }}
                             >
-                                {survey.trending && (
-                                    <div className="trending-badge">🔥 Trend</div>
-                                )}
-                                <div className="card-header">
-                                    <div className={`status-badge ${survey.active ? 'status-active' : 'status-completed'}`}>
-                                        {survey.active ? 'Aktif' : 'Tamamlandı'}
-                                    </div>
-                                    <div className="rating-container">
-                                        <Star className="rating-star" />
-                                        <span className="rating-text">{survey.avarageRating || 0}</span>
-                                    </div>
-                                </div>
-                                {survey.coverImage && (
-                                    <div className="card-cover">
+                                {/* Media Section (Image + Overlays) */}
+                                <div className="card-media">
+                                    {survey.coverImage ? (
                                         <img src={survey.coverImage} alt={survey.title} />
+                                    ) : (
+                                        <div className="card-media-placeholder">
+                                            <div className="placeholder-text">Görsel Yok</div>
+                                        </div>
+                                    )}
+
+                                    {/* Crown Badge (Top Right) */}
+                                    {(survey.popular || survey.trending) && (
+                                        <div className="crown-badge">
+                                            <Crown size={16} />
+                                        </div>
+                                    )}
+
+                                    {/* Author Chip (Top Left) */}
+                                    <div className="author-chip">
+                                        <span className="author-avatar">A</span>
+                                        <span className="author-name">{survey.authorName || 'Anonim'}</span>
                                     </div>
-                                )}
-                                <div className="category-badge">
-                                    {survey.category || "Kategori Yok"}
-                                </div>
-                                <h3 className="card-title">{survey.title}</h3>
-                                <p className="card-description">{survey.description || ""}</p>
-                                <div className="card-stats">
-                                    <div className="stat-item">
-                                        <Users className="stat-icon stat-users" />
-                                        <span className="stat-text">{(survey.Participant || 0).toLocaleString()}</span>
+
+                                    {/* Play Button (Bottom Right) */}
+                                    <div className="play-button">
+                                        <Play size={14} />
+                                        <span>{(survey.Participant || 0).toLocaleString()}</span>
                                     </div>
                                 </div>
-                                <div className="card-footer">
-                                    <ChevronRight className="arrow-icon" />
+
+                                {/* Content Section (Dark Background) */}
+                                <div className="card-content">
+                                    {/* Title */}
+                                    <h3 className="card-title">{survey.title}</h3>
+
+                                    {/* Meta Stats */}
+                                    <div className="card-meta">
+                                        <div className="meta-item">
+                                            <Tag size={16} />
+                                            <span>{survey.category || 'Kategori'}</span>
+                                            <span className="meta-count">({survey.questionCount || 0})</span>
+                                        </div>
+                                        <div className="meta-item">
+                                            <MessageSquare size={16} />
+                                            <span>{survey.commentCount || 0}</span>
+                                        </div>
+                                        <div className="meta-item">
+                                            <Heart size={16} />
+                                            <span>{survey.likes || 0}</span>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {/* Hover overlay */}
                                 <div className="card-overlay" />
                             </div>
                         ))}
@@ -228,7 +251,7 @@ function AnketPage () {
                     setUser(loggedInUser);
                     setIsLoginOpen(false);
                 }}
-                />
+            />
         </>
     );
 }

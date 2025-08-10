@@ -654,3 +654,24 @@
     padding: 4px 0;
   }
 }
+
+/* Light theme overrides for UsersTab */
+.dashboard.theme-light .users-tab { background:#f5f6f8; color:#111827; }
+.dashboard.theme-light .users-header { border-color:#e5e7eb; }
+.dashboard.theme-light .header-left h2 { color:#111827; }
+.dashboard.theme-light .header-left p { color:#6b7280; }
+.dashboard.theme-light .stats-grid .stat-card { background:#ffffff; border-color:#e5e7eb; }
+.dashboard.theme-light .users-table-section { background:#ffffff; border-color:#e5e7eb; }
+.dashboard.theme-light .table-grid-header { background:#f9fafb; color:#6b7280; }
+.dashboard.theme-light .table-row:hover { background:#f9fafb; }
+.dashboard.theme-light .table-cell { color:#111827; }
+.dashboard.theme-light .search-container { background:#ffffff; border-color:#e5e7eb; }
+.dashboard.theme-light .search-input { color:#111827; }
+.dashboard.theme-light .user-id { color:#9ca3af; }
+.dashboard.theme-light .contact-item { color:#6b7280; }
+.dashboard.theme-light .modal { background:#ffffff; border-color:#e5e7eb; }
+.dashboard.theme-light .modal-header { border-color:#e5e7eb; }
+.dashboard.theme-light .modal-header h3 { color:#111827; }
+.dashboard.theme-light .form-group label { color:#374151; }
+.dashboard.theme-light .form-group input, .dashboard.theme-light .form-group select, .dashboard.theme-light .password-input { background:#ffffff; border-color:#e5e7eb; color:#111827; }
+.dashboard.theme-light .toggle-password { color:#9ca3af; }
